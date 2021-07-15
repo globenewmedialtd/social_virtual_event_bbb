@@ -1,0 +1,132 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.joinbutton_block
+    - field.field.node.event.body
+    - field.field.node.event.field_content_visibility
+    - field.field.node.event.field_enroll_method
+    - field.field.node.event.field_event_address
+    - field.field.node.event.field_event_an_enroll
+    - field.field.node.event.field_event_comments
+    - field.field.node.event.field_event_date
+    - field.field.node.event.field_event_date_end
+    - field.field.node.event.field_event_enroll
+    - field.field.node.event.field_event_enroll_outside_group
+    - field.field.node.event.field_event_image
+    - field.field.node.event.field_event_location
+    - field.field.node.event.field_event_managers
+    - field.field.node.event.field_event_max_enroll
+    - field.field.node.event.field_event_max_enroll_num
+    - field.field.node.event.field_event_type
+    - field.field.node.event.field_files
+    - node.type.event
+  module:
+    - user
+_core:
+  default_config_hash: bzg8hCudAKciFMoCtlScytVPKbqPJizmZidZRdEU3tI
+id: node.event.joinbutton_block
+targetEntityType: node
+bundle: event
+mode: joinbutton_block
+content:
+  groups_type_course_advanced:
+    label: above
+    weight: 0
+    region: content
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  groups_type_course_basic:
+    label: above
+    weight: 1
+    region: content
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  groups_type_flexible_group:
+    label: above
+    weight: 2
+    region: content
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  groups_type_public_group:
+    label: above
+    weight: 3
+    region: content
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  groups_type_secret_group:
+    label: above
+    weight: 4
+    region: content
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  groups_type_tm_community:
+    label: above
+    weight: 5
+    region: content
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  groups_type_tm_conference:
+    label: above
+    weight: 6
+    region: content
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  groups_type_tm_training:
+    label: above
+    weight: 7
+    region: content
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  virtual_event_bbb_meeting:
+    weight: 8
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  body: true
+  field_content_visibility: true
+  field_enroll_method: true
+  field_event_address: true
+  field_event_addtocal: true
+  field_event_an_enroll: true
+  field_event_comments: true
+  field_event_date: true
+  field_event_date_end: true
+  field_event_enroll: true
+  field_event_enroll_outside_group: true
+  field_event_image: true
+  field_event_location: true
+  field_event_managers: true
+  field_event_max_enroll: true
+  field_event_max_enroll_num: true
+  field_event_type: true
+  field_files: true
+  flag_follow_content: true
+  groups: true
+  groups_type_closed_group: true
+  groups_type_open_group: true
+  langcode: true
+  like_and_dislike: true
+  links: true
+  private_message_link: true
+  search_api_excerpt: true
+  shariff_field: true
+  social_tagging: true
+

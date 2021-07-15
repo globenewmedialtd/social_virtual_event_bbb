@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.joinbutton_block
+label: joinbutton_block
+targetEntityType: node
+cache: true
+

@@ -1,0 +1,9 @@
+social_virtual_event_bbb.settings:
+  path: '/admin/virtual_events/settings'
+  defaults:
+    _form: '\Drupal\social_virtual_event_bbb\Form\SocialVirtualEventBBBSettingsForm'
+    _title: 'Social Virtual Event BBB Settings'
+  requirements:
+    _permission: 'administer social_virtual_event_bbb settings'
+  options:
+    _admin_route: TRUE  

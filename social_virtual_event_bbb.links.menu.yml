@@ -1,0 +1,6 @@
+social_virtual_event_bbb.settings:
+  title: 'Social Virtual Event BBB Settings'
+  route_name: social_virtual_event_bbb.settings
+  parent: virtual_events.admin_config
+  description: 'Social Virtual Event BBB Settings'
+  weight: 0

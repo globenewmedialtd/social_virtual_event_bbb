@@ -1,0 +1,13 @@
+social_virtual_event_bbb.settings:
+  type: config_object
+  label: 'Social Virtual Event BBB Settings'
+  mapping:
+    recording_admin_only:
+      type: boolean
+      label: 'Activate Recordings for Administrators only'
+    bbb_statistic_refresh:
+      type: integer
+      label: 'Refresh rate in seconds'
+    nodejs_support:
+      type: boolean
+      label: 'Activate NODEJS for realtime capabilities'
