@@ -11,3 +11,12 @@ countdown.timer:
     - core/drupal
     - core/drupalSettings
     - core/jquery.once
+
+clock.timer:
+  version: VERSION
+  js:
+    js/timer.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
