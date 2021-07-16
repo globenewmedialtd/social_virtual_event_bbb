@@ -65,7 +65,7 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
   if ($form_id === 'virtual_event_bbb_link_form') {
 
     $token = \Drupal::request()->query->get('token');
-  
+    $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
     $user = \Drupal::currentUser();
     $args = $form_state->getBuildInfo()["args"];
     $event = $args[0];
@@ -78,7 +78,7 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
     $start_event = $event->getEntity()->field_event_date->date;
     $end_event = $event->getEntity()->field_event_date_end->date;
     $font_size = $socialVirtualEventsCommon->getFontSize();
-    if (!isset($font_size)) {
+    if (!$font_size) {
       $font_size = 28;
     }    
     

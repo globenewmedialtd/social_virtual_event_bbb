@@ -43,8 +43,12 @@ class SocialVirtualEventBBBCommonService {
   }
 
   public function getFontSize() {
-    $config = $this->configFactory()->getEditable('social_virtual_event_bbb.settings');
-    return $config->get('count_down_font_size');
+    $config = $this->configFactory->getEditable('social_virtual_event_bbb.settings');
+    $font_size = $config->get('count_down_font_size');
+    if(isset($font_size)) {
+      return $config->get('count_down_font_size');
+    } 
+    return FALSE;
   }
 
 
