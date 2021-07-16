@@ -14,20 +14,6 @@ use Drupal\Core\Url;
 class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
 
   /**
-   * The Plugin Type.
-   *
-   * @var string
-   */
-  private $type = "virtual_event_bbb";
-
-  /**
-   * Get Plugin Type.
-   */
-  public function getType() {
-    return $this->type;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function checkMeeting(VirtualEventsEventEntity $event) {
@@ -191,6 +177,17 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       $settings = $source_data["settings"];
     }
 
+    $recording_access = array_filter($settings["recording_access"]);
+
+    $social_virtual_event_bbb = \Drupal::config('social_virtual_event_bbb.settings');
+    $recording_access_allowed_options = $social_virtual_event_bbb->get('recording_access_allowed');
+    $recording_access_allowed_default_option = $social_virtual_event_bbb->get('recording_access_default');
+
+    if (!isset($recording_access_allowed_options) || empty($recording_access_allowed_options)) {
+      $social_virtual_event_bbb_common = \Drupal::service('social_virtual_event_bbb.common');
+      $recording_access_allowed_options = $social_virtual_event_bbb_common->getAllAllowedRecordingAccessOptions();
+    }
+
     $form['welcome'] = [
       '#title' => t('Welcome message'),
       '#type' => 'textfield',
@@ -207,6 +204,16 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#description' => t('The URL that the users will be redirected to after they logs out of the conference, leave empty to redirect to the current entity.'),
       '#disabled' => $event !== NULL,
     ];
+    $form['mute_on_start'] = [
+      '#type' => 'checkbox',
+      '#options' => [
+         0 => t('Disable'),
+         1 => t('Enable'),
+      ],
+      '#title' => t('Mute on start'),
+      '#default_value' => $settings['mute_on_start'] ? $settings['mute_on_start'] : '',
+      '#disabled' => $event !== NULL, 
+    ];
     $form['record'] = [
       '#title' => t('Record meeting'),
       '#type' => 'select',
@@ -218,21 +225,16 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#description' => t('Whether to automatically start recording when first user joins, Moderators in the session can still pause and restart recording using the UI control.'),
       '#disabled' => $event !== NULL,
     ];
-
-    $form['mute_on_start'] = [
-      '#type' => 'checkbox',
-      '#options' => [
-         0 => t('Disable'),
-         1 => t('Enable'),
-      ],
-      '#title' => t('Mute on start'),
-      '#default_value' => $settings['mute_on_start'] ? $settings['mute_on_start'] : '',
-      '#disabled' => $event !== NULL, 
+    $form['recording_access'] = [
+      '#type' => 'checkboxes',
+      '#title' => t('Define access level for recordings'),
+      '#options' => $recording_access_allowed_options,
+      '#default_value' => $recording_access ? $recording_access : $recording_access_allowed_default_option,
     ];
-
     $form['join_button_visible_before'] = [
       '#type' => 'select',
       '#title' => t('Display join button before event start'),
+      '#default_value' => $settings["join_button_visible_before"] ? $settings["join_button_visible_before"] : "show_always_open",
       '#options' => [
         'show_always_open' => t('Show always open'),
         '15' => t('15 minutes'),
@@ -241,12 +243,12 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
         '60' => t('60 minutes'),
         '90' => t('90 minutes'),
       ],
-      '#disabled' => $event !== NULL,
+      //'#disabled' => $event !== NULL,
     ];
-
     $form['join_button_visible_after'] = [
       '#type' => 'select',
       '#title' => t('Display join button after event closes'),
+      '#default_value' => $settings['join_button_visible_after'] ? $settings["join_button_visible_after"] : "show_always_open",
       '#options' => [
         'show_always_open' => t('Show always open'),
         '15' => t('15 minutes'),
@@ -255,7 +257,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
         '60' => t('60 minutes'),
         '90' => t('90 minutes'),
       ],
-      '#disabled' => $event !== NULL,
+      //'#disabled' => $event !== NULL,
     ];
 
     // We want to be able to delete the attached event

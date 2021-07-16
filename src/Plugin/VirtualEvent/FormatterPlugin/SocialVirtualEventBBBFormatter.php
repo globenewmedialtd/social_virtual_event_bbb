@@ -69,24 +69,6 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
       '#description' => t('How to display the recordings'),
     ];
 
-    $form['recordings']['recordings_access'] = [
-      '#title' => t('Grant Access to the recordings'),
-      '#type' => 'select',
-      '#default_value' => $options["recordings"]["recordings_access"] ? $options["recordings"]["recordings_access"] : 'access_viewer',
-      '#options' => [
-        'access_moderator' => t('Moderator'),
-        'access_viewer' => t('Viewer'),
-        'access_authenticated_viewer' => t('Authenticated Viewer'),
-        'access_enrolled_viewer' => t('Enrolled Viewers')
-      ],
-      '#states' => [
-        'visible' => [
-          ':input[id="field_show_recordings"]' => ['checked' => TRUE],
-        ],
-      ],
-      '#description' => t('Who can access the recordings'),
-    ];
-
     $form['modal'] = [
       '#type' => 'details',
       '#title' => t('Modal'),

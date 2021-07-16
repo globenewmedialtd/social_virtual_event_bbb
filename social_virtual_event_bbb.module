@@ -17,6 +17,7 @@ use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\virtual_events\Entity\VirtualEventsEventEntity;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 
 /**
@@ -24,6 +25,36 @@ use Drupal\virtual_events\Entity\VirtualEventsEventEntity;
  */
 function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
+  // Don't perform on delete forms
+  if (strpos($form_id, '_delete') !== FALSE) {
+    return;
+  }
+
+  $virtualEventsCommon = \Drupal::service('virtual_events.common');
+  
+
+  if ($form_state->getFormObject() instanceof EntityFormInterface) {
+    $entity = $form_state->getFormObject()->getEntity();
+    $entity_type = $entity->getEntityTypeId();
+    $entity_bundle = $entity->bundle();
+    $entity_id = $entity->id();
+    $event = $virtualEventsCommon->getEventByRefernce($entity_type, $entity_id);
+
+    $event_source_data = [];
+    $enabled_source = "";
+    if ($event) {
+      foreach (array_keys($form['actions']) as $action) {
+        if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+          $form['actions'][$action]['#submit'][] = 'social_virtual_event_bbb_update_event_form_submit';
+        }
+      }
+    }
+  }
+    
+
+  
+  
+  
   // We want required fields for enroll dialog
   if ($form_id === 'event_an_enroll_form') {
     // Make First and Last name required
@@ -44,7 +75,41 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
     $uid = $user->id();
     $nid = $event->getEntity()->id();
     $node_type = $event->getEntity()->getType();
+    $start_event = $event->getEntity()->field_event_date->date;
+    $end_event = $event->getEntity()->field_event_date_end->date;
+    $font_size = $socialVirtualEventsCommon->getFontSize();
+    if (!isset($font_size)) {
+      $font_size = 28;
+    }    
     
+    $current_date = time();
+
+
+  $source_data = $event->getSourceData();
+
+
+  $join_button_visible_before = $source_data['settings']['join_button_visible_before'];
+  
+  if($join_button_visible_before != 'always_open') {
+    $join_button_visible_before_seconds = $source_data['settings']['join_button_visible_before'] * 60;
+    $show_button_at = $start_event->getTimestamp() - $join_button_visible_before_seconds;
+    // Attach Javascript and Setting
+    if ($show_button_at > $current_date) {
+      $form['submit']['#attributes']['class'][] = 'visually-hidden';
+      $countdown_settings = [
+        'unixtimestamp' => $show_button_at,
+        'fontsize' => $font_size
+      ];
+      $form['timer'] = [
+        '#markup' => '<div id="jquery-countdown-timer"></div><div id="jquery-countdown-timer-note"></div>',
+      ];
+      $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
+      $form['#attached']['drupalSettings']['countdown'] = $countdown_settings;    
+    }
+    else {
+      $form['submit']['#attributes']['class'][] = 'visually-hidden';
+    }
+  }
 
     // Make sure we act on event nodes only
     // Make sure Event organizers are not effected
@@ -308,6 +373,14 @@ function social_virtual_event_bbb_config_schema_info_alter(&$definitions) {
       'type' => 'boolean',
       'lable' => 'Mute on start'
     ];
+    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['recording_access'] = [
+      'type' => 'sequence',
+      'label' => 'Recording access',
+      'option' => [
+        'type' => 'string',
+        'label' => 'Option'
+      ]
+    ];
   }
 }
 
@@ -339,17 +412,17 @@ function social_virtual_event_bbb_update_event_form_submit(array $form, FormStat
 
   if ($enable_virtual_session && $event) {
 
-    //unset($sourcesData["enable_virtual_session"]);
-    //unset($sourcesData["type"]);
+    $sourceKey = $event->getEnabledSourceKey();
+    $settings = $sourcesData[$sourceKey]['settings'];
+    $updatedSource = [
+      'enabled' => TRUE,
+      'settings' => $settings
+    ];
 
     // Update the Event Entity
     $eventEntity = \Drupal::entityTypeManager()->getStorage('virtual_events_event_entity')->load($event->id());
-    
-    $sourceKey = $event->getEnabledSourceKey();
-    //$eventEntity->setSourceData($sourceKey,$sourcesData);
-    //$eventEntity->save();
-
-    
+    $eventEntity->setSourceData($sourceKey,$updatedSource);
+    $eventEntity->save();   
     
 
   }

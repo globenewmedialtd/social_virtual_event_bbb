@@ -5,9 +5,26 @@ social_virtual_event_bbb.settings:
     recording_admin_only:
       type: boolean
       label: 'Activate Recordings for Administrators only'
-    bbb_statistic_refresh:
+    bbb_statistic_block_refresh:
       type: integer
       label: 'Refresh rate in seconds'
     nodejs_support:
       type: boolean
       label: 'Activate NODEJS for realtime capabilities'
+    recording_access_default:
+      type: string
+      label: 'Recording access default'
+    recording_access_allowed:
+      type: sequence
+      label: 'Allowed recording access'
+      allowed_option:
+        type: string
+        label: 'Allowed option'
+    count_down_font_size:
+      type: integer
+      label: 'Count down display font size'
+    count_down_date_time_format:
+      type: integer
+      label: 'Count down date time format'
+
+    
