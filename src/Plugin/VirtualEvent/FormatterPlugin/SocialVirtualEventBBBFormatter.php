@@ -214,6 +214,20 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
               }
             }
 
+            if (isset($settings['recording_access']) && $settings['recording_access'] === 'recording_access_viewer_enrolled' ) {
+             
+              $event_enrollment = \Drupal::entityTypeManager()->getStorage('event_enrollment');
+              $enrolled = $event_enrollment->loadByProperties([
+                'field_account' => $user->id(),
+                'field_event' => $entity_id,
+                'field_enrollment_status' => 1,
+              ]);
+             
+              if ($entity->access('view') && $enrolled) {
+                $grant_access = TRUE;
+              }
+            }            
+
             if ($grant_access) {
 
               $apiUrl = $keys["url"];
