@@ -424,3 +424,9 @@ function social_virtual_event_bbb_update_event_form_submit(array $form, FormStat
 
   }
 }
+
+function social_virtual_event_bbb_uninstall() {
+  \Drupal::configFactory()->getEditable('core.entity_view_display.node.event.joinbutton_block')->delete();
+  \Drupal::configFactory()->getEditable('core.entity_view_mode.node.joinbutton_block')->delete();
+  \Drupal::configFactory()->getEditable('views.view.social_virtual_event_bbb_join_block')->delete();
+}
