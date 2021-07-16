@@ -188,6 +188,8 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       $recording_access_allowed_options = $social_virtual_event_bbb_common->getAllAllowedRecordingAccessOptions();
     }
 
+    kint($recording_access_allowed_default_option);
+
     $form['welcome'] = [
       '#title' => t('Welcome message'),
       '#type' => 'textfield',
@@ -226,7 +228,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#disabled' => $event !== NULL,
     ];
     $form['recording_access'] = [
-      '#type' => 'checkboxes',
+      '#type' => 'radios',
       '#title' => t('Define access level for recordings'),
       '#options' => $recording_access_allowed_options,
       '#default_value' => $recording_access ? $recording_access : $recording_access_allowed_default_option,

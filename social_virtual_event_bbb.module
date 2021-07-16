@@ -106,9 +106,6 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
       $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
       $form['#attached']['drupalSettings']['countdown'] = $countdown_settings;    
     }
-    else {
-      $form['submit']['#attributes']['class'][] = 'visually-hidden';
-    }
   }
 
     // Make sure we act on event nodes only
