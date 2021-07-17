@@ -226,9 +226,11 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
               if ($entity->access('view') && $enrolled) {
                 $grant_access = TRUE;
               }
-            }            
-
+            }    
+            
             if ($grant_access) {
+
+              
 
               $apiUrl = $keys["url"];
               $secretKey = $keys["secretKey"];

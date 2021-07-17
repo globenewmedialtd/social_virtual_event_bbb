@@ -177,10 +177,13 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       $settings = $source_data["settings"];
     }
 
+    kint($settings);
+
     $social_virtual_event_bbb_common = \Drupal::service('social_virtual_event_bbb.common');
     $default_recording_access_allowed_options = $social_virtual_event_bbb_common->getAllAllowedRecordingAccessOptions();
     
-    $recording_access = array_filter($settings["recording_access"]);
+    $recording_access = $settings["recording_access"];
+
     $social_virtual_event_bbb = \Drupal::config('social_virtual_event_bbb.settings');
     $recording_access_allowed_options = $social_virtual_event_bbb->get('recording_access_allowed');
     $recording_access_allowed_default_option = $social_virtual_event_bbb->get('recording_access_default');
@@ -231,7 +234,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#disabled' => $event !== NULL,
     ];
     $form['recording_access'] = [
-      '#type' => 'radios',
+      '#type' => 'select',
       '#title' => t('Define access level for recordings'),
       '#options' => $recording_access_allowed,
       '#default_value' => $recording_access ? $recording_access : $recording_access_allowed_default_option,
