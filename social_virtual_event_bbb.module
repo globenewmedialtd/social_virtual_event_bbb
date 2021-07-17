@@ -19,6 +19,16 @@ use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\virtual_events\Entity\VirtualEventsEventEntity;
 use Drupal\Core\Datetime\DrupalDateTime;
 
+/*
+function social_virtual_event_bbb_theme($existing, $type, $theme, $path) {
+  return [
+    'node__event__joinbutton_block' => [
+      'template' => 'node--event--joinbutton-block',
+      'base hook' => 'node',
+    ],
+  ];
+}
+*/
 
 /**
  * Implements hook_form_alter()
@@ -64,6 +74,8 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
   
   if ($form_id === 'virtual_event_bbb_link_form') {
 
+
+
     $token = \Drupal::request()->query->get('token');
     $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
     $user = \Drupal::currentUser();
@@ -95,6 +107,7 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
     $show_button_at = $start_event->getTimestamp() - $join_button_visible_before_seconds;
     // Attach Javascript and Setting
     if ($show_button_at > $current_date) {
+      $form['submit']['#access'] = TRUE;  
       $form['submit']['#attributes']['class'][] = 'visually-hidden';
       $countdown_settings = [
         'unixtimestamp' => $show_button_at,
@@ -107,6 +120,31 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
       $form['#attached']['drupalSettings']['countdown'] = $countdown_settings;    
     }
   }
+
+  $join_button_visible_after = $source_data['settings']['join_button_visible_after'];
+  if($join_button_visible_after != 'always_open') {
+    $join_button_visible_after_seconds = $source_data['settings']['join_button_visible_after'] * 60;
+    $hide_button_at = $end_event->getTimestamp() + $join_button_visible_after_seconds;
+    // We do not want to hide the button, as long as the 
+    // event did not start    
+      if ($current_date > $hide_button_at) {
+        $form['submit']['#access'] = FALSE;
+      }
+      else {   
+        $form['submit']['#access'] = TRUE;   
+        $timer_settings = [
+          'unixtimestamp' => $hide_button_at,
+        ];
+        $form['#attached']['library'][] = 'social_virtual_event_bbb/clock.timer';
+        $form['#attached']['drupalSettings']['timer'] = $timer_settings;
+      }
+    }
+
+  
+
+  
+
+  
 
     // Make sure we act on event nodes only
     // Make sure Event organizers are not effected
@@ -162,7 +200,7 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
 
         // Don't show the join meeting button
         if (!$enrolled || !$group_member) {
-          unset($form['submit']);
+          $form['submit']['#access'] = FALSE;
         }
 
       } 
@@ -172,7 +210,7 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
        
         
         if (!$an_enrolled) {
-          unset($form['submit']);
+          $form['submit']['#access'] = FALSE;
         } 
       }
     } 
@@ -425,8 +463,3 @@ function social_virtual_event_bbb_update_event_form_submit(array $form, FormStat
   }
 }
 
-function social_virtual_event_bbb_uninstall() {
-  \Drupal::configFactory()->getEditable('core.entity_view_display.node.event.joinbutton_block')->delete();
-  \Drupal::configFactory()->getEditable('core.entity_view_mode.node.joinbutton_block')->delete();
-  \Drupal::configFactory()->getEditable('views.view.social_virtual_event_bbb_join_block')->delete();
-}

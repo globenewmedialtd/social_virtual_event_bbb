@@ -113,7 +113,7 @@ class SocialVirtualEventBBBSettingsForm extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
    // kint($form_state->getValue('recording_access_default'));
-   // kint($form_state->getValue('recording_access_allowed'));
+    //kint($form_state->getValue('recording_access_allowed'));
     //exit;
 
   }
@@ -122,16 +122,22 @@ class SocialVirtualEventBBBSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    
+    $social_virtual_event_bbb_common = \Drupal::service('social_virtual_event_bbb.common');
+    $recording_access_available_allowed_options = $social_virtual_event_bbb_common->getAllAllowedRecordingAccessOptions();
+    $recording_access_allowed_options = $form_state->getValue('recording_access_allowed');
+    $recording_access_allowed = array_filter($recording_access_allowed_options);
+    //$save_recording_access = array_intersect_key($recording_access_available_allowed_options, $recording_access_allowed);
+    
+    // If none selected enable all options
+    //if ($recording_access_allowed === 0) {
+      //$recording_access_allowed = $this->getRecordingAccessAllowedOptions();  
+    //}  
+
+
     $config = $this->configFactory->getEditable('social_virtual_event_bbb.settings');
     $config->set('recording_admin_only', $form_state->getValue('recording_admin_only'));
     $config->set('recording_access_default', $form_state->getValue('recording_access_default'));
-    
-    $recording_access_allowed_options = $form_state->getValue('recording_access_allowed');
-    $recording_access_allowed = array_filter($recording_access_allowed_options);
-    // If none selected enable all options
-    if ($recording_access_allowed === 0) {
-      $recording_access_allowed = $this->getRecordingAccessAllowedOptions();  
-    }
     $config->set('recording_access_allowed', $recording_access_allowed);
     $config->set('bbb_statistic_refresh', $form_state->getValue('bbb_statistic_refresh'));
     $config->set('count_down_font_size', $form_state->getValue('count_down_font_size'));

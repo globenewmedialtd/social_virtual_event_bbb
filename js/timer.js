@@ -5,21 +5,25 @@
      */
     Drupal.behaviors.showHideJoinButton = {
       attach: function (context, settings) {
+
+
+      
+
         function ticker() {
           var current = Math.floor(Date.now() / 1000)
       	  var timer = drupalSettings.timer.unixtimestamp;
           var timedifference = current - timer;
-
-console.log(timedifference);
 	  if (timedifference >= 0) {
-            $('#virtual-event-bbb-link-form #edit-submit').addClass('visually-hidden');
+            $('#virtual-event-bbb-link-form button').addClass('visually-hidden');
+            $('.block-social-virtual-event-bbb-join-button-block').addClass('visually-hidden');
+            clearInterval(interval);   
           }         
         }    
-    
 
-      setInterval(function() {
+     var interval = setInterval(function() {
        ticker();
       }, 1000);
+
      }
     };
 })(jQuery, Drupal, drupalSettings);

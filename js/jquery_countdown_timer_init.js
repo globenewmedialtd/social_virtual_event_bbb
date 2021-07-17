@@ -21,7 +21,7 @@
                     var message = Drupal.t('@hours : @minutes : @seconds', dateStrings);
                     if (message === '0 hours : 0 minutes : 0 seconds') {
                       $('#jquery-countdown-timer').hide();
-                      $('#virtual-event-bbb-link-form #edit-submit').removeClass('visually-hidden');
+                      $('#virtual-event-bbb-link-form button').removeClass('visually-hidden');
                     }
 	            //console.log(message);
                     //note.html(message);
