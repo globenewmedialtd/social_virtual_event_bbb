@@ -169,7 +169,7 @@ class SocialVirtualEventBBBJoinButtonBlock extends BlockBase implements Containe
       $entity_type = $node->getEntityTypeId();
       $entity_id = $node->id();
       $event = $virtualEventsCommon->getEventByRefernce($entity_type, $entity_id);
-      if ($event) {
+      if ($event) {        
         $joinmeeting_button = \Drupal::formBuilder()->getForm(VirtualEventBBBLinkForm::class, $event);
         if (isset($joinmeeting_button) && $joinmeeting_button['submit']['#access'] === TRUE) {        
           $build['content'] = $joinmeeting_button;
