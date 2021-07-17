@@ -181,12 +181,7 @@ class SocialVirtualEventBBBJoinButtonBlock extends BlockBase implements Containe
             ]
           ];
 
-          $build['#attributes'] = [
-            'class' => [
-              'card__block',
-              'text-center'
-            ]
-          ];
+          
         }  
       }
     }

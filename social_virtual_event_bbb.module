@@ -98,6 +98,7 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
 
     // Important to set default    
     $form['submit']['#access'] = TRUE;
+    $form['submit']['#attributes']['class'][] = 'btn-block';
 
     $source_data = $event->getSourceData();
 
