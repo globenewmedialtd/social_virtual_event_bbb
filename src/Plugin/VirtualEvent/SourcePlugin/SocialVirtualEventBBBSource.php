@@ -177,8 +177,6 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       $settings = $source_data["settings"];
     }
 
-    kint($settings);
-
     $social_virtual_event_bbb_common = \Drupal::service('social_virtual_event_bbb.common');
     $default_recording_access_allowed_options = $social_virtual_event_bbb_common->getAllAllowedRecordingAccessOptions();
     
