@@ -105,7 +105,15 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
         ],
       ],
     ];
+
+    $form['show_recordings_only'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Show only recordings'),
+      '#default_value' => $options['show_recordings_only'] ? $options['show_recordings_only'] : FALSE, 
+    ];   
+
     return $form;
+
   }
 
 
@@ -134,61 +142,62 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
       if ($event) {
         if ($formatter_options) {
           $display_options = $formatter_options;
-          if (!$display_options["show_iframe"]) {
-            if (isset($display_options["modal"], $display_options["modal"]["open_in_modal"]) && $display_options["modal"]["open_in_modal"]) {
-              if ($entity->access('view')) {
-                if (empty($display_options)) {
-                  $display_options = $this->defaultSettings();
-                }
-                if (!$entity->access('update')) {
+          if(!$display_options['show_recordings_only']) {
+            if (!$display_options["show_iframe"]) {
+              if (isset($display_options["modal"], $display_options["modal"]["open_in_modal"]) && $display_options["modal"]["open_in_modal"]) {
+                if ($entity->access('view')) {
+                  if (empty($display_options)) {
+                    $display_options = $this->defaultSettings();
+                  }
+                  if (!$entity->access('update')) {
                   
-                  $element["virtual_event_bbb_modal"] = [
-                    '#theme' => 'virtual_event_bbb_modal',
-                    '#join_url' => Url::fromRoute('virtual_event_bbb.virtual_event_bbb_modal_controller_join', ['event' => $event->id()]),
-                    '#display_options' => $display_options,
-                  ];
+                    $element["virtual_event_bbb_modal"] = [
+                      '#theme' => 'virtual_event_bbb_modal',
+                      '#join_url' => Url::fromRoute('virtual_event_bbb.virtual_event_bbb_modal_controller_join', ['event' => $event->id()]),
+                      '#display_options' => $display_options,
+                    ];
+                  }
+                  else {
+                    $element["join_link"] = \Drupal::formBuilder()->getForm(VirtualEventBBBLinkForm::class, $event, $display_options);
+                 }
                 }
-                else {
-                  $element["join_link"] = \Drupal::formBuilder()->getForm(VirtualEventBBBLinkForm::class, $event, $display_options);
-                }
+              }
+              else {
+                $element["join_link"] = \Drupal::formBuilder()->getForm(VirtualEventBBBLinkForm::class, $event, $display_options);
               }
             }
             else {
-              $element["join_link"] = \Drupal::formBuilder()->getForm(VirtualEventBBBLinkForm::class, $event, $display_options);
-            }
-          }
-          else {
-            $apiUrl = $keys["url"];
-            $secretKey = $keys["secretKey"];
-            $bbb = new VirtualEventBBB($secretKey, $apiUrl);
-            /* Check if meeting is not active,
-            recreate it before showing the join url */
-            $event->reCreate();
+              $apiUrl = $keys["url"];
+              $secretKey = $keys["secretKey"];
+              $bbb = new VirtualEventBBB($secretKey, $apiUrl);
+              /* Check if meeting is not active,
+              recreate it before showing the join url */
+              $event->reCreate();
 
-            /* Check access for current entity, if user can update
-            then we can consider the user as moderator,
-            otherwise we consider the user as normal attendee.
-             */
-            if ($entity->access('update')) {
-              $joinMeetingParams = new JoinMeetingParameters($event->id(), $user->getDisplayName(), $settings["moderatorPW"]);
-            }
-            elseif ($entity->access('view')) {
-              $joinMeetingParams = new JoinMeetingParameters($event->id(), $user->getDisplayName(), $settings["attendeePW"]);
-            }
+              /* Check access for current entity, if user can update
+              then we can consider the user as moderator,
+              otherwise we consider the user as normal attendee.
+              */
+              if ($entity->access('update')) {
+                $joinMeetingParams = new JoinMeetingParameters($event->id(), $user->getDisplayName(), $settings["moderatorPW"]);
+              }
+              elseif ($entity->access('view')) {
+                $joinMeetingParams = new JoinMeetingParameters($event->id(), $user->getDisplayName(), $settings["attendeePW"]);
+              }
 
-            $joinMeetingParams->setRedirect(TRUE);
-            try {
-              $url = $bbb->getJoinMeetingURL($joinMeetingParams);
+              $joinMeetingParams->setRedirect(TRUE);
+              try {
+                $url = $bbb->getJoinMeetingURL($joinMeetingParams);
 
-              $element["meeting_iframe"] = [
-                '#theme' => 'virtual_event_bbb_iframe',
-                '#url' => $url,
-              ];
-            } catch (\RuntimeException $exception) {
-              watchdog_exception('virtual_event_bbb', $exception, $exception->getMessage());
-              drupal_set_message(t("Couldn't get meeting join link! please contact system administrator."), 'error');
+                $element["meeting_iframe"] = [
+                  '#theme' => 'virtual_event_bbb_iframe',
+                  '#url' => $url,
+                ];
+              } catch (\RuntimeException $exception) {
+                watchdog_exception('virtual_event_bbb', $exception, $exception->getMessage());
+                drupal_set_message(t("Couldn't get meeting join link! please contact system administrator."), 'error');
+             }         
             }
-
           }
 
           if ($display_options["recordings"]["show_recordings"]) {
@@ -229,9 +238,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
             }    
             
             if ($grant_access) {
-
-              
-
+            
               $apiUrl = $keys["url"];
               $secretKey = $keys["secretKey"];
               $bbb = new VirtualEventBBB($secretKey, $apiUrl);
@@ -240,7 +247,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
               $recordingParams->setMeetingID($event->id());
 
               try {
-                $response = $bbb->getRecordings($recordingParams);
+                $response = $bbb->getRecordings($recordingParams);                
                 if (!empty($response->getRawXml()->recordings->recording)) {
                 switch ($display_options["recordings"]["recordings_display"]) {
                   case 'links':
