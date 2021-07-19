@@ -173,11 +173,13 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
           'field_enrollment_status' => 1,
         ]);
 
+        
+
         // Check if user is group member        
         // Get the group
         $gid_from_entity = $groupHelperService->getGroupFromEntity([
           'target_type' => 'node',
-          'target_id' => $event->id(),
+          'target_id' => $nid,
         ]);  
           
         if ($gid_from_entity !== NULL) {
@@ -192,13 +194,11 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
           if ($member) {
             $group_member = TRUE;
           }
-        }    
+        }  
         
-
-        // Don't show the join meeting button
-        if (!$enrolled || !$group_member) {
+        if (!$enrolled && !$group_member) {
           unset($form['submit']);
-        }
+        }        
 
       } 
       else {   

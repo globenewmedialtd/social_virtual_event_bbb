@@ -4,11 +4,7 @@
      * Attaches the JS countdown behavior
      */
     Drupal.behaviors.showHideJoinButton = {
-      attach: function (context, settings) {
-
-
-      
-
+      attach: function (context, settings) {   
         function ticker() {
           var current = Math.floor(Date.now() / 1000)
       	  var timer = drupalSettings.timer.unixtimestamp;
