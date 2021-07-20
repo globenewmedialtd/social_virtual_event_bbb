@@ -76,7 +76,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       $apiUrl = $keys["url"];
       $secretKey = $keys["secretKey"];
       $bbb = new VirtualEventBBB($secretKey, $apiUrl);
-      $createMeetingParams = new CreateMeetingParameters($event->id(), $event->label());
+      $createMeetingParams = new CreateMeetingParameters($event->id(), $entity->label());
       if ($source_data["settings"]["welcome"]) {
         $createMeetingParams->setWelcomeMessage($source_data["settings"]["welcome"]);
       }
