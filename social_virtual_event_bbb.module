@@ -74,8 +74,6 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
   
   if ($form_id === 'virtual_event_bbb_link_form') {
 
-
-
     $token = \Drupal::request()->query->get('token');
     $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
     $user = \Drupal::currentUser();
@@ -93,6 +91,11 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
     if (!$font_size) {
       $font_size = 28;
     }    
+
+    $form_class = 'virtual_event_bbb_link_form--' . $nid;
+    $timer_element = 'jquery-countdown-timer--' . $nid;
+
+    $form['#attributes']['class'][] = $form_class;
     
     $current_date = time();
 
@@ -110,17 +113,21 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
       $show_button_at = $start_event->getTimestamp() - $join_button_visible_before_seconds;
     // Attach Javascript and Setting
     if ($show_button_at > $current_date) {
+
       $form['submit']['#access'] = TRUE;  
       $form['submit']['#attributes']['class'][] = 'visually-hidden';
+      
       $countdown_settings = [
         'unixtimestamp' => $show_button_at,
-        'fontsize' => $font_size
+        'fontsize' => $font_size,
+        'timer_element' => $timer_element,
+        'form_class' => $form_class,
       ];
-      $form['timer'] = [
-        '#markup' => '<div id="jquery-countdown-timer"></div><div id="jquery-countdown-timer-note"></div>',
+      $form['countdown'] = [
+        '#markup' => '<div id="'. $timer_element .'" class="jquery-countdown-timer"></div><div id="jquery-countdown-timer-note"></div>',
       ];
       $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
-      $form['#attached']['drupalSettings']['countdown'] = $countdown_settings;    
+      $form['#attached']['drupalSettings']['countdown'][$nid] = $countdown_settings;    
     }
   }
 
@@ -137,9 +144,15 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
         $form['submit']['#access'] = TRUE;   
         $timer_settings = [
           'unixtimestamp' => $hide_button_at,
+          'fontsize' => $font_size,
+          'timer_element' => $timer_element,
+          'form_class' => $form_class,
         ];
-        $form['#attached']['library'][] = 'social_virtual_event_bbb/clock.timer';
-        $form['#attached']['drupalSettings']['timer'] = $timer_settings;
+        $form['timer'] = [
+          '#markup' => '<div id="'. $timer_element .'" class="jquery-timer"></div><div id="jquery-countdown-timer-note"></div>',
+        ];
+        $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
+        $form['#attached']['drupalSettings']['timer'][$nid] = $timer_settings;
       }
     }
 
@@ -240,8 +253,7 @@ function social_virtual_event_bbb_submit_handler(array $form, FormStateInterface
   $token_value = $form_state->getValue('token_value');
 
   // We need to read the token for an. users
-  //$token = \Drupal::request()->query->get('token');
-  
+  //$token = \Drupal::request()->query->get('token');  
   
 
   if ($event) {
@@ -459,4 +471,5 @@ function social_virtual_event_bbb_update_event_form_submit(array $form, FormStat
 
   }
 }
+
 
