@@ -12,11 +12,14 @@ countdown.timer:
     - core/drupalSettings
     - core/jquery.once
 
-clock.timer:
+bbb_statistic:
   version: VERSION
+  css:
+    component:
+      css/bbb_statistic.css: {}
+
+nodejs_bbb_statistic:
   js:
-    js/timer.js: {}
+    js/nodejs_bbb_event_statistic.js: {}
   dependencies:
-    - core/jquery
-    - core/drupal
-    - core/drupalSettings
+    - nodejs_ajax/nodejs_ajax

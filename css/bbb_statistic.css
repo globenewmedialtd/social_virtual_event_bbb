@@ -1,0 +1,11 @@
+.bbb__row div {
+  float: left;
+}
+
+.bbb__label {
+  width: 80%;
+}
+
+.bbb__value {
+  width: 20%;
+}

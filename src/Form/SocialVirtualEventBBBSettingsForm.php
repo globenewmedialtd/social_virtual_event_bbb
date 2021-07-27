@@ -158,10 +158,10 @@ class SocialVirtualEventBBBSettingsForm extends ConfigFormBase {
    */
   protected function getRecordingAccessAllowedOptions() {
     return [
-      'recording_access_viewer' => 'View access all users',
-      'recording_access_viewer_authenticated' => 'View access authenticated users',
-      'recording_access_viewer_moderator' => 'View access Moderator',
-      'recording_access_viewer_enrolled' => 'View Access enrolled users'
+      'recording_access_viewer' => 'All users (including anonymous users)',
+      'recording_access_viewer_authenticated' => 'All authenticated users',
+      'recording_access_viewer_moderator' => 'Only event organisers',
+      'recording_access_viewer_enrolled' => 'Organisers & participants'
     ];
   }
 

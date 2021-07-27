@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a bbb meeting statistic.
+ *
+ * Available variables:
+ * - statistic: The complete array for the statistic
+ *   The following keys are available at:
+ *   - statistic.meeting_name will return the name for the meeting.
+ *   - statistic.count_viewers will display the number of viewers in the meeting
+ *   - statistic.count_moderators will display the number of moderators in the meeting
+ *   - statistic.meeting_running will display YES or NO if meeting running
+ *   - statistic.meeting_joined will display YES or NO if meeting are already joined
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="bbb-meeting-statistic">
+  <div class="bbb__row clear">
+    <h2>{{ statistic.meeting_name }}</h2>
+  </div>
+
+  <div class="bbb__row clear">
+    <div class="bbb__label">Viewers</div>
+    <div class="bbb__value">{{ statistic.count_viewers }}</div>
+  </div>
+  <div class="bbb__row clear">
+    <div class="bbb__label">moderators</div>
+    <div class="bbb__value">{{ statistic.count_moderators }}</div>     
+  </div>
+</div>
+
+<ul class="list-group">
+  <li class="list-group-item">    
+    Cras justo odio
+    <span class="badge">14</span>
+  </li>
+</ul>

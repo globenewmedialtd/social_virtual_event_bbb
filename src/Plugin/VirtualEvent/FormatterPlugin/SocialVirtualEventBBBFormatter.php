@@ -121,6 +121,10 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
    * {@inheritdoc}
    */
   public function viewElement(EntityInterface $entity, VirtualEventsEventEntity $event, VirtualEventsFormatterEntity $formatters_config, array $source_config, array $source_data, array $formatter_options) {
+    
+    $element = parent::viewElement($entity, $event, $formatters_config, $source_config, $source_data, $formatter_options);
+     
+    $grant_access = FALSE;
     $user = \Drupal::currentUser();
     $entity_type = $entity->getEntityTypeId();
     $entity_bundle = $entity->bundle();
@@ -128,7 +132,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
     $BBBKeyPluginManager = \Drupal::service('plugin.manager.bbbkey_plugin');
 
     
-    $element = [];
+    //$element = [];
     $settings = [];
     if (isset($source_data["settings"])) {
       $settings = $source_data["settings"];
@@ -142,7 +146,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
       if ($event) {
         if ($formatter_options) {
           $display_options = $formatter_options;
-          if(!$display_options['show_recordings_only']) {
+
             if (!$display_options["show_iframe"]) {
               if (isset($display_options["modal"], $display_options["modal"]["open_in_modal"]) && $display_options["modal"]["open_in_modal"]) {
                 if ($entity->access('view')) {
@@ -165,6 +169,12 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
               else {
                 $element["join_link"] = \Drupal::formBuilder()->getForm(VirtualEventBBBLinkForm::class, $event, $display_options);
               }
+
+              // We want to hide the form if the setting points to TRUE
+              if($display_options['show_recordings_only']) {
+                unset($element["join_link"]);
+              }
+
             }
             else {
               $apiUrl = $keys["url"];
@@ -197,8 +207,8 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
                 watchdog_exception('virtual_event_bbb', $exception, $exception->getMessage());
                 drupal_set_message(t("Couldn't get meeting join link! please contact system administrator."), 'error');
              }         
-            }
-          }
+            }         
+
 
           if ($display_options["recordings"]["show_recordings"]) {
 
@@ -235,7 +245,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
               if ($entity->access('view') && $enrolled) {
                 $grant_access = TRUE;
               }
-            }    
+            } 
             
             if ($grant_access) {
             
@@ -249,13 +259,27 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
               try {
                 $response = $bbb->getRecordings($recordingParams);                
                 if (!empty($response->getRawXml()->recordings->recording)) {
+                  $recordings = [];
+                  foreach ($response->getRawXml()->recordings->recording as $key => $recording){
+                    foreach ($recording->playback as $key => $playback){
+                      foreach ($recording->playback->format as $key => $format){
+                        if($format->type == "video_mp4" || $format->type == "presentation"){
+                          $format->recordID = $recording->recordID;
+                          $recordings[] = $format;
+                        }
+                      }
+                    }
+                  }
+
+                  
+
                 switch ($display_options["recordings"]["recordings_display"]) {
                   case 'links':
                     $element["meeting_recordings"] = [
                       '#theme' => 'virtual_event_bbb_recordings_links',
                       '#url' => Url::fromRoute('virtual_event_bbb.virtual_event_b_b_b_recording_controller_view_recording', ['event' => $event->id()]),
                       '#display_options' => $display_options,
-                      '#recordings' => $response->getRawXml()->recordings->recording,
+                      '#recordings' => $recordings,
                     ];
                     break;
 
@@ -264,14 +288,14 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
                       '#theme' => 'virtual_event_bbb_recordings_linked_thumbnails',
                       '#url' => Url::fromRoute('virtual_event_bbb.virtual_event_b_b_b_recording_controller_view_recording', ['event' => $event->id()]),
                       '#display_options' => $display_options,
-                      '#recordings' => $response->getRawXml()->recordings->recording,
+                      '#recordings' => $recordings,
                     ];
                     break;
 
                   case 'video':
                     $element["meeting_recordings"] = [
                       '#theme' => 'virtual_event_bbb_recordings_video',
-                      '#recordings' => $response->getRawXml()->recordings->recording,
+                      '#recordings' => $recordings,
                     ];
                     break;
 
@@ -280,7 +304,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
                       '#theme' => 'virtual_event_bbb_recordings_links',
                       '#url' => Url::fromRoute('virtual_event_bbb.virtual_event_b_b_b_recording_controller_view_recording', ['event' => $event->id()]),
                       '#display_options' => $display_options,
-                      '#recordings' => $response->getRawXml()->recordings->recording,
+                      '#recordings' => $recordings,
                     ];
                     break;
                 }
@@ -289,6 +313,10 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
                 watchdog_exception('virtual_event_bbb', $exception, $exception->getMessage());
                 drupal_set_message(t("Couldn't get recordings! please contact system administrator."), 'error');
               }
+            }
+            else {
+              // We do not have any right to see recordings
+              unset($element["meeting_recordings"]);
             }
           }
         }

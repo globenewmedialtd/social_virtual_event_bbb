@@ -5,4 +5,4 @@ services:
       - { name: event_subscriber }
   social_virtual_event_bbb.common:
     class: Drupal\social_virtual_event_bbb\SocialVirtualEventBBBCommonService
-    arguments: ['@config.factory']
+    arguments: ['@config.factory','@entity_type.manager']

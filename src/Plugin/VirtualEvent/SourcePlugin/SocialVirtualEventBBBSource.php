@@ -124,6 +124,9 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(FormStateInterface $form_state, ?array $pluginConfigValues) {
+    
+    $form = parent::buildConfigurationForm($form_state,$pluginConfigValues);
+    
     $BBBKeyPluginManager = \Drupal::service('plugin.manager.bbbkey_plugin');
     $keyPlugins = $BBBKeyPluginManager->getDefinitions();
     $keyOpts = [];
@@ -171,7 +174,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
    * {@inheritdoc}
    */
   public function buildEntityForm(FormStateInterface $form_state, ?VirtualEventsEventEntity $event, array $source_data = []) {
-    $form = [];
+    $form = parent::buildEntityForm($form_state, $event, $source_data);
     $settings = [];
     if (isset($source_data["settings"])) {
       $settings = $source_data["settings"];
@@ -217,7 +220,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
          1 => t('Enable'),
       ],
       '#title' => t('Mute on start'),
-      '#default_value' => $settings['mute_on_start'] ? $settings['mute_on_start'] : '',
+      '#default_value' => $settings['mute_on_start'] ? $settings['mute_on_start'] : TRUE,
       '#disabled' => $event !== NULL, 
     ];
     $form['record'] = [
@@ -233,7 +236,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
     ];
     $form['recording_access'] = [
       '#type' => 'select',
-      '#title' => t('Define access level for recordings'),
+      '#title' => t('Who can see the recordings?'),
       '#options' => $recording_access_allowed,
       '#default_value' => $recording_access ? $recording_access : $recording_access_allowed_default_option,
     ];

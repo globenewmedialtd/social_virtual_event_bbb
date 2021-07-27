@@ -18,17 +18,19 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\virtual_events\Entity\VirtualEventsEventEntity;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\Ajax\ReplaceCommand;
 
-/*
-function social_virtual_event_bbb_theme($existing, $type, $theme, $path) {
+
+function social_virtual_event_bbb_theme() {
   return [
-    'node__event__joinbutton_block' => [
-      'template' => 'node--event--joinbutton-block',
-      'base hook' => 'node',
+    'social_virtual_event_bbb_statistic' => [
+      'variables' => [
+        'statistic' => NULL
+      ],
     ],
   ];
 }
-*/
+
 
 /**
  * Implements hook_form_alter()
@@ -60,13 +62,9 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
       }
     }
   }
-    
-
-  
-  
   
   // We want required fields for enroll dialog
-  if ($form_id === 'event_an_enroll_form') {
+  if ($form_id === 'event_an_enroll_form') {    
     // Make First and Last name required
     $form['field_first_name']['#required'] = TRUE;
     $form['field_last_name']['#required'] = TRUE;
@@ -250,6 +248,7 @@ function social_virtual_event_bbb_submit_handler(array $form, FormStateInterface
   $virtualEventsCommon = \Drupal::service('virtual_events.common');
   $user = \Drupal::currentUser();
   $event = $virtualEventsCommon->getEventById($form_state->getValue('event_id'));
+  $node = $event->getEntity();
   $token_value = $form_state->getValue('token_value');
 
   // We need to read the token for an. users
@@ -306,6 +305,33 @@ function social_virtual_event_bbb_submit_handler(array $form, FormStateInterface
 
       $url = $bbb->getJoinMeetingURL($joinMeetingParams);
 
+      // Get BBB API Call and send data to clients
+      //$socialVirtualEventBBBCommon = \Drupal::service('social_virtual_event_bbb.common');
+      //$data = $socialVirtualEventBBBCommon->nodejsGetBBBStatistic($node);
+      /*
+      if($data) {
+        \Drupal::logger('social_virtual_event_bbb')->notice($node->id());
+        $testing['#markup'] = 'Super!!!';
+        $themed_data = [
+          '#theme' => 'social_virtual_event_bbb_statistic',
+          '#statistic' => $data,
+          '#prefix' => '<div id="bbb-meeting-info" class="card__block">',
+          '#suffix' => '</div>'
+        ];
+        $replace_command = new ReplaceCommand('#bbb-meeting-info', $themed_data);
+        $commands[] = $replace_command->render();
+
+        $nodejs_message = (object) [
+          'channel' => '106',
+          'commands' => $commands,
+          'callback' => 'nodejsBBBEventStatistic',
+        ];
+        nodejs_send_content_channel_message($nodejs_message);
+        //nodejs_send_message($nodejs_message);
+      }
+      */
+
+      // Join the Meeting
       $form_state->setResponse(new TrustedRedirectResponse($url));
 
     } catch (\RuntimeException $exception) {
@@ -471,5 +497,7 @@ function social_virtual_event_bbb_update_event_form_submit(array $form, FormStat
 
   }
 }
+
+
 
 
