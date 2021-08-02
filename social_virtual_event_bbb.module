@@ -641,7 +641,7 @@ function social_virtual_event_bbb_preprocess_block(&$variables) {
   //kint($variables);
   if ($variables['plugin_id'] == 'views_block:bbb_recording_list-block') { 
     $view = $variables['content']['view_build']['#view'];
-    if(!empty($view->get_total_rows)) {
+    if(!empty($view->get_total_rows) && $view->get_total_rows > 0) {
       $variables['content']['#prefix'] = '<div class="card__block">';
       $variables['content']['#suffix'] = '</div>';
     }    

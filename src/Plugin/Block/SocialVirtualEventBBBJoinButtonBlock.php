@@ -172,11 +172,9 @@ class SocialVirtualEventBBBJoinButtonBlock extends BlockBase implements Containe
       if ($event) {        
         $joinmeeting_button = \Drupal::formBuilder()->getForm(VirtualEventBBBLinkForm::class, $event);
         if (isset($joinmeeting_button) && $joinmeeting_button['submit']['#access'] === TRUE) {        
-          $build['content'] = $joinmeeting_button;
-          $build['content']['#attributes']['class'] = [
-            'card__block',
-            'text-center'            
-          ];          
+          $build['#prefix'] = '<div class="card__block text-center">';
+          $build['#suffix'] = '</div>'; 
+          $build['content'] = $joinmeeting_button;          
         }  
       }
     }
