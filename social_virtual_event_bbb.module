@@ -672,6 +672,15 @@ function social_virtual_event_extra_form_submit(array $form, FormStateInterface 
 
 }
 
+/**
+ * Implements hook_uninstall for left over config.
+ */
+function social_virtual_event_bbb_uninstall() {
+  \Drupal::configFactory()->getEditable('views.view.bbb_recording_list')->delete();
+  \Drupal::configFactory()->getEditable('core.entity_view_display.node.event.bbb_recording')->delete();
+  \Drupal::configFactory()->getEditable('core.entity_view_mode.node.bbb_recording')->delete();
+}
+
 
 
 

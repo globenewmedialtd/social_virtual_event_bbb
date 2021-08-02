@@ -137,6 +137,7 @@ class RestResourceBBBMeeting extends ResourceBase {
 
         if($nodejs) {          
           if($bbb_meeting_statistic) {
+            \Drupal::logger('social_virtual_event_bbb')->notice('<pre><code>' . print_r($bbb_meeting_statistic, TRUE) . '</code></pre>');
             $themed_data = [
               '#theme' => 'social_virtual_event_bbb_statistic',
               '#statistic' => $bbb_meeting_statistic,
