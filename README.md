@@ -8,6 +8,7 @@ After installing the module please configure as followed:
 - 2. Now make sure that the display 'BBB Recording' shows only the field formatter 'Virtual Event BBB Meeting Formatter' and the 'Get the related GROUP NAME group groups for this entity. Depending on your available groups. You can watch at a different view mode to see what you need.
 - 3. Visit your Block Layout and enable the following blocks: 'BBB Recording List', 'Social Virtual Event BBB Join Button Block' and if you have activated NODEJS you may want to enable 'Social Virtual Event BBB Statistics Block'
 - 4. Please make sure that you enalbe block visibility. All blocks work only on Node type events.
+- 5. Visit admin/virtual_events/settings and save your preferred settings for the module.
 
 ## Nodejs - Installation
 You need to have Node.js version 10+ installed on your system. 
@@ -20,14 +21,15 @@ You need to have Node.js version 10+ installed on your system.
 
 Exmaple:
 
-'settings = {
+```
+settings = {
   scheme: 'http',
   port: 8080,
   host: 'localhost',
-  serviceKey: 'test',
+  serviceKey: 'YOUR_SERVICE_KEY',
   backend: {
     port: 80,
-    host: 'social10.test',
+    host: 'yourwebiste.com',
     scheme: 'http',
     basePath: '',
     messagePath: '/nodejs/message'
@@ -40,7 +42,9 @@ Exmaple:
   baseAuthPath: '/nodejs/',
   extensions: [],
   socketOptions: {}
-};' 
+};
+
+```
 
 - 7. Now start the app with node app.js inside that directory. On production you may want to use forever or pm2 to make sure nodejs will be running without the need to start it all the time.
 
