@@ -15,6 +15,15 @@ This module acts on event content types only and uses the enrollment handling fr
 - Reset Button on Virtual Event Sources inside Events
 - Recording Access (Please do not forget to first visit settings page and make the adjustments)
 - Additional Settings
+- Nodejs Integration
+- New custom Block 'Social Virtual Event BBB Statistics Block'
+- New custom Block 'BBB Recording List'
+- New view BBB Recording List'
+- New BBB Setting 'moderator_only_message' 
+- New BBB Setting 'allow_mods_to_unmute_users'
+- New Callback for Communication between BBB and Drupal
+- New Display Mode: BBB Recording
+- New Rest Endpoint RestResourceBBBMeeting
 
 Please note: The new block should replace the block view, because when setting "Show in entity page" has been disabled, the view does not show any results. So now the 'join meeting button' is a custom block and does not use any view or view mode.
 

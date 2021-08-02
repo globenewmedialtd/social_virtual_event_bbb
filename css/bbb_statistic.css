@@ -4,8 +4,11 @@
 
 .bbb__label {
   width: 80%;
+  padding: 12px;
 }
 
 .bbb__value {
   width: 20%;
+  padding: 12px;
+  text-align: right;
 }

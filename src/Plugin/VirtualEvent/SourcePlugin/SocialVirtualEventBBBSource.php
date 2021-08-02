@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\virtual_event_bbb\VirtualEventBBB;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\CreateMeetingParameters;
+use BigBlueButton\Parameters\HooksCreateParameters;
 use Drupal\Core\Url;
 
 class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
@@ -58,7 +59,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
     $entityUrl = \Drupal::request()->getSchemeAndHttpHost() . $entity->toUrl()->toString();
     $logout_url = \Drupal::request()->getSchemeAndHttpHost() . Url::fromRoute('virtual_events.virtual_events_event_ended_controller_reload', ['url' => $entityUrl])->toString();
     $event_config = $event->getVirtualEventsConfig($event->id());
-
+    $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
     
 
     /* Check if current enitity configured as meeting
@@ -80,7 +81,21 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       if ($source_data["settings"]["welcome"]) {
         $createMeetingParams->setWelcomeMessage($source_data["settings"]["welcome"]);
       }
-
+      // Prepare Event Link for moderators
+      $node_url = Url::fromRoute('entity.node.canonical', ['node' => $entity->id()]);
+      $node_url->setAbsolute(TRUE);    
+      $moderator_only_message_text = t('To invite someone to the meeting, send them this link:'); 
+      $moderator_only_message_link = $node_url->toString(); 
+      
+      if (isset($source_data["settings"]["moderator_only_message"])) {
+        $moderator_message = $source_data["settings"]["moderator_only_message"] . ' ' . $moderator_only_message_text . ' ' . $moderator_only_message_link;
+      }
+      else {
+        $moderator_message = $moderator_only_message_text . ' ' . $moderator_only_message_link;
+      }
+      if ($moderator_message) {
+        $createMeetingParams->setModeratorOnlyMessage($moderator_message);
+      }
       $logoPath = file_create_url(theme_get_setting('logo.url'));
       $createMeetingParams->setLogoutUrl($source_data["settings"]["logoutURL"] ? $source_data["settings"]["logoutURL"] : $logout_url);
       $createMeetingParams->setDuration(0);
@@ -96,23 +111,36 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
         $createMeetingParams->setMuteOnStart(TRUE);
       }
 
+      if($source_data["settings"]["allow_mods_to_unmute_users"]) {
+        $createMeetingParams->setAllowModsToUnmuteUsers(TRUE);
+      }
+
       try {
         $response = $bbb->createMeeting($createMeetingParams);
         if ($response->getReturnCode() == 'FAILED') {
           drupal_set_message(t("Couldn't create room! please contact system administrator."), 'error');
         }
         else {
+          // We want to have a Hook created but only for Node Events only for now
+          if ($entity instanceof NodeInterface && $entity->getType() === 'event') {
+            $socialVirtualEventsCommon->createMeetingCallback($entity->id());
+          }        
+
           $typeId = $this->getType();
           $source_data["settings"]["attendeePW"] = $response->getAttendeePassword();
           $source_data["settings"]["moderatorPW"] = $response->getModeratorPassword();
           $event->setSourceData($this->pluginId, $source_data);
           $event->save();
           return $event;
+
         }
-      }catch (\RuntimeException $exception) {
+        
+      }
+      catch (\RuntimeException $exception) {
         watchdog_exception('virtual_event_bbb', $exception, $exception->getMessage());
         drupal_set_message(t("Couldn't create room! please contact system administrator."), 'error');
-      }catch (Exception $exception) {
+      }
+      catch (Exception $exception) {
         watchdog_exception('virtual_event_bbb', $exception, $exception->getMessage());
         drupal_set_message(t("Couldn't create room! please contact system administrator."), 'error');
       }
@@ -190,7 +218,6 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
     $recording_access_allowed_default_option = $social_virtual_event_bbb->get('recording_access_default');
     
     if (!isset($recording_access_allowed_options) || empty($recording_access_allowed_options)) {
-      $social_virtual_event_bbb_common = \Drupal::service('social_virtual_event_bbb.common');
       $recording_access_allowed = $default_recording_access_allowed_options;
     }
     else {
@@ -204,6 +231,14 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#maxlength' => 255,
       '#description' => t('A welcome message that gets displayed on the chat window when the participant joins. You can include keywords (%%CONFNAME%%, %%DIALNUM%%, %%CONFNUM%%) which will be substituted automatically.'),
       '#disabled' => $event !== NULL,
+    ];
+    $form['moderator_only_message'] = [
+      '#title' => t('Message to moderators only'),
+      '#type' => 'textfield',
+      '#default_value' => $settings["moderator_only_message"] ? $settings["moderator_only_message"] : "",
+      '#maxlength' => 255,
+      '#description' => t('A message that gets displayed on the chat window when the moderator joins.'),
+      '#disabled' => $event !== NULL, 
     ];
     $form['logoutURL'] = [
       '#title' => t('Logout URL'),
@@ -223,6 +258,16 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#default_value' => $settings['mute_on_start'] ? $settings['mute_on_start'] : TRUE,
       '#disabled' => $event !== NULL, 
     ];
+    $form['allow_mods_to_unmute_users'] = [
+      '#type' => 'checkbox',
+      '#options' => [
+         0 => t('Disable'),
+         1 => t('Enable'),
+      ],
+      '#title' => t('Allow mods to unmute users'),
+      '#default_value' => $settings['allow_mods_to_unmute_users'] ? $settings['allow_mods_to_unmute_users'] : FALSE,
+      '#disabled' => $event !== NULL, 
+    ];
     $form['record'] = [
       '#title' => t('Record meeting'),
       '#type' => 'select',
@@ -233,41 +278,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       ],
       '#description' => t('Whether to automatically start recording when first user joins, Moderators in the session can still pause and restart recording using the UI control.'),
       '#disabled' => $event !== NULL,
-    ];
-    $form['recording_access'] = [
-      '#type' => 'select',
-      '#title' => t('Who can see the recordings?'),
-      '#options' => $recording_access_allowed,
-      '#default_value' => $recording_access ? $recording_access : $recording_access_allowed_default_option,
-    ];
-    $form['join_button_visible_before'] = [
-      '#type' => 'select',
-      '#title' => t('Display join button before event start'),
-      '#default_value' => $settings["join_button_visible_before"] ? $settings["join_button_visible_before"] : "show_always_open",
-      '#options' => [
-        'show_always_open' => t('Show always open'),
-        '15' => t('15 minutes'),
-        '30' => t('30 minutes'),
-        '45' => t('45 minutes'),
-        '60' => t('60 minutes'),
-        '90' => t('90 minutes'),
-      ],
-      //'#disabled' => $event !== NULL,
-    ];
-    $form['join_button_visible_after'] = [
-      '#type' => 'select',
-      '#title' => t('Display join button after event closes'),
-      '#default_value' => $settings['join_button_visible_after'] ? $settings["join_button_visible_after"] : "show_always_open",
-      '#options' => [
-        'show_always_open' => t('Show always open'),
-        '15' => t('15 minutes'),
-        '30' => t('30 minutes'),
-        '45' => t('45 minutes'),
-        '60' => t('60 minutes'),
-        '90' => t('90 minutes'),
-      ],
-      //'#disabled' => $event !== NULL,
-    ];
+    ];    
 
     // We want to be able to delete the attached event
     // if any.

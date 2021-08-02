@@ -20,23 +20,68 @@ use Drupal\virtual_events\Entity\VirtualEventsEventEntity;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Ajax\ReplaceCommand;
 
-
-function social_virtual_event_bbb_theme() {
+/**
+ * Implements hook_theme()
+ */
+function social_virtual_event_bbb_theme($existing, $type, $theme, $path) {
   return [
     'social_virtual_event_bbb_statistic' => [
       'variables' => [
         'statistic' => NULL
       ],
     ],
+    'virtual_event_bbb_recordings_links__social_virtual_event_bbb' => [
+      'template' => 'virtual-event-bbb-recordings-links--social-virtual-event-bbb',
+      'base hook' => 'virtual_event_bbb_recordings_links'
+    ],
+    'virtual_event_bbb_recordings_linked_thumbnails__social_virtual_event_bbb' => [
+      'template' => 'virtual-event-bbb-recordings-linked-thumbnails--social-virtual-event-bbb',
+      'base hook' => 'virtual_event_bbb_recordings_linked_thumbnails'
+    ],
+    'virtual_event_bbb_recordings_video_video__social_virtual_event_bbb' => [
+      'template' => 'virtual-event-bbb-recordings-video-video--social-virtual-event-bbb',
+      'base hook' => 'virtual_event_bbb_recordings_video_video'
+    ],
+    'virtual_event_bbb_recordings_video_iframe__social_virtual_event_bbb' => [
+      'template' => 'virtual-event-bbb-recordings-video-iframe--social-virtual-event-bbb',
+      'base hook' => 'virtual_event_bbb_recordings_video_iframe',
+    ],
+    'virtual_event_bbb_recordings_video__social_virtual_event_bbb' => [
+      'template' => 'virtual-event-bbb-recordings-video--social-virtual-event-bbb',
+      'base hook' => 'virtual_event_bbb_recordings_video',
+    ],
   ];
 }
 
+/**
+ * Implements hook_theme_suggestions_alter()
+ */
+function social_virtual_event_bbb_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+
+  if($hook === 'virtual_event_bbb_recordings_links') {
+    $suggestions[] = 'virtual_event_bbb_recordings_links__social_virtual_event_bbb';
+  }
+  if($hook === 'virtual_event_bbb_recordings_linked_thumbnails') {
+    $suggestions[] = 'virtual_event_bbb_recordings_linked_thumbnails__social_virtual_event_bbb';
+  }
+  if($hook === 'virtual_event_bbb_recordings_video_video') {
+    $suggestions[] = 'virtual_event_bbb_recordings_video_video__social_virtual_event_bbb';
+  }
+  if($hook === 'virtual_event_bbb_recordings_video_iframe') {
+    $suggestions[] = 'virtual_event_bbb_recordings_video_iframe__social_virtual_event_bbb';
+  }
+  if($hook === 'virtual_event_bbb_recordings_video') {
+    $suggestions[] = 'virtual_event_bbb_recordings_video__social_virtual_event_bbb';
+  }
+
+} 
 
 /**
  * Implements hook_form_alter()
  */
 function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
+  /* Remove due to bug #97
   // Don't perform on delete forms
   if (strpos($form_id, '_delete') !== FALSE) {
     return;
@@ -57,11 +102,88 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
     if ($event) {
       foreach (array_keys($form['actions']) as $action) {
         if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
-          $form['actions'][$action]['#submit'][] = 'social_virtual_event_bbb_update_event_form_submit';
+          //$form['actions'][$action]['#submit'][] = 'social_virtual_event_bbb_update_event_form_submit';
         }
       }
     }
   }
+  */
+
+  if ($form_id === 'node_event_edit_form' || $form_id === 'node_event_form') {
+    $node = $form_state->getformObject()->getEntity();
+    $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
+    
+    // Recording Access
+    $default_recording_access_allowed_options = $socialVirtualEventsCommon->getAllAllowedRecordingAccessOptions();
+    $social_virtual_event_bbb_settings = \Drupal::config('social_virtual_event_bbb.settings');
+    $recording_access_allowed_options = $social_virtual_event_bbb_settings->get('recording_access_allowed');
+    $recording_access_allowed_default_option = $social_virtual_event_bbb_settings->get('recording_access_default');
+    // Get Join Meeting Button options
+    $join_meeting_button_options = $socialVirtualEventsCommon->getOptionsForJoinMeetingButton();
+    // Join Meeting Button Before
+    $join_meeting_button_before_default_option = $social_virtual_event_bbb_settings->get('join_meeting_button_before_default');
+    // Join Meeting Button After
+    $join_meeting_button_after_default_option = $social_virtual_event_bbb_settings->get('join_meeting_button_after_default');
+    // Get config for the event    
+    $config = $socialVirtualEventsCommon->getSocialVirtualEventBBBEntityConfig($node->id());
+ 
+    if ($config) {
+      $recording_access_default = $config->getRecordingAccess();
+      $join_meeting_button_visible_before_default = $config->getJoinButtonVisibleBefore();
+      $join_meeting_button_visible_after_default = $config->getJoinButtonVisibleAfter();       
+    }
+    
+
+    if (!isset($recording_access_allowed_options) || empty($recording_access_allowed_options)) {
+      $recording_access_allowed = $default_recording_access_allowed_options;
+    }
+    else {
+      $recording_access_allowed = array_intersect_key($default_recording_access_allowed_options, $recording_access_allowed_options);
+    }
+
+
+    // Attach new fieldset
+    $form['social_virtual_event_bbb_config_entity'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Virtual Event BBB extra settings'),      
+      '#tree' => TRUE,
+      '#weight' => 5,
+      '#states' => [
+        'visible' => [
+          ':input[name="virtual_events_sources[enable_virtual_session]"]' => ['checked' => TRUE],
+        ]
+      ],
+      '#attributes' => [
+        'class' => [
+          'card'
+        ]
+      ]
+    ];
+
+    $form['social_virtual_event_bbb_config_entity']['recording_access'] = [
+      '#type' => 'select',
+      '#title' => t('Who can see the recordings?'),
+      '#options' => $recording_access_allowed,
+      '#default_value' => $recording_access_default ? $recording_access_default : $recording_access_allowed_default_option,
+    ];
+    $form['social_virtual_event_bbb_config_entity']['join_button_visible_before'] = [
+      '#type' => 'select',
+      '#title' => t('Display join button before event start'),
+      '#default_value' => $join_meeting_button_visible_before_default ? $join_meeting_button_visible_before_default : $join_meeting_button_before_default_option,
+      '#options' => $join_meeting_button_options,
+    ];
+    $form['social_virtual_event_bbb_config_entity']['join_button_visible_after'] = [
+      '#type' => 'select',
+      '#title' => t('Display join button after event closes'),
+      '#default_value' => $join_meeting_button_visible_after_default ? $join_meeting_button_visible_after_default : $join_meeting_button_after_default_option,
+      '#options' => $join_meeting_button_options,
+    ];
+
+    // Submit handler for config
+    $form['actions']['submit']['#submit'][] = 'social_virtual_event_extra_form_submit';
+
+  }
+
   
   // We want required fields for enroll dialog
   if ($form_id === 'event_an_enroll_form') {    
@@ -77,83 +199,94 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
     $user = \Drupal::currentUser();
     $args = $form_state->getBuildInfo()["args"];
     $event = $args[0];
-    $display_options = $args[1];
+    $display_options = [];
+    if(isset($args[1])) {
+      $display_options = $args[1];
+    }    
     $group_member = FALSE;
-
     $uid = $user->id();
     $nid = $event->getEntity()->id();
     $node_type = $event->getEntity()->getType();
-    $start_event = $event->getEntity()->field_event_date->date;
-    $end_event = $event->getEntity()->field_event_date_end->date;
-    $font_size = $socialVirtualEventsCommon->getFontSize();
-    if (!$font_size) {
-      $font_size = 28;
-    }    
 
-    $form_class = 'virtual_event_bbb_link_form--' . $nid;
-    $timer_element = 'jquery-countdown-timer--' . $nid;
-
-    $form['#attributes']['class'][] = $form_class;
     
-    $current_date = time();
+    
+    if (isset($node_type) && $node_type === 'event') {       
 
-    // Important to set default    
-    $form['submit']['#access'] = TRUE;
-    $form['submit']['#attributes']['class'][] = 'btn-block';
+      $start_event = $event->getEntity()->field_event_date->date;
+      $end_event = $event->getEntity()->field_event_date_end->date;
+      $font_size = $socialVirtualEventsCommon->getFontSize();
+      if (!$font_size) {
+        $font_size = 28;
+      }    
 
-    $source_data = $event->getSourceData();
+      $form_class = 'virtual_event_bbb_link_form--' . $nid;
+      $timer_element = 'jquery-countdown-timer--' . $nid;
 
+      $form['#attributes']['class'][] = $form_class;
+   
+      $current_date = time();
 
-    $join_button_visible_before = $source_data['settings']['join_button_visible_before'];
+      // Important to set default    
+      $form['submit']['#access'] = TRUE;
+      $form['submit']['#attributes']['class'][] = 'btn-block';
+
+      $source_data = $event->getSourceData();
+
+      $virtual_event_bbb_config_entity = $socialVirtualEventsCommon->getSocialVirtualEventBBBEntityConfig($nid);
+
+      if ($virtual_event_bbb_config_entity) {
+
+        $join_button_visible_before = $virtual_event_bbb_config_entity->getJoinButtonVisibleBefore();
   
-    if($join_button_visible_before != 'show_always_open') {
-      $join_button_visible_before_seconds = $source_data['settings']['join_button_visible_before'] * 60;
-      $show_button_at = $start_event->getTimestamp() - $join_button_visible_before_seconds;
-    // Attach Javascript and Setting
-    if ($show_button_at > $current_date) {
+        if($join_button_visible_before != 'show_always_open') {
+          $join_button_visible_before_seconds = $join_button_visible_before * 60;
+          $show_button_at = $start_event->getTimestamp() - $join_button_visible_before_seconds;
+          // Attach Javascript and Setting
+          if ($show_button_at > $current_date) {
 
-      $form['submit']['#access'] = TRUE;  
-      $form['submit']['#attributes']['class'][] = 'visually-hidden';
+            $form['submit']['#access'] = TRUE;  
+            $form['submit']['#attributes']['class'][] = 'visually-hidden';
       
-      $countdown_settings = [
-        'unixtimestamp' => $show_button_at,
-        'fontsize' => $font_size,
-        'timer_element' => $timer_element,
-        'form_class' => $form_class,
-      ];
-      $form['countdown'] = [
-        '#markup' => '<div id="'. $timer_element .'" class="jquery-countdown-timer"></div><div id="jquery-countdown-timer-note"></div>',
-      ];
-      $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
-      $form['#attached']['drupalSettings']['countdown'][$nid] = $countdown_settings;    
-    }
-  }
+            $countdown_settings = [
+              'unixtimestamp' => $show_button_at,
+              'fontsize' => $font_size,
+              'timer_element' => $timer_element,
+              'form_class' => $form_class,
+            ];
+            $form['countdown'] = [
+              '#markup' => '<div id="'. $timer_element .'" class="jquery-countdown-timer"></div><div id="jquery-countdown-timer-note"></div>',
+            ];
+            $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
+            $form['#attached']['drupalSettings']['countdown'][$nid] = $countdown_settings;    
+          }
+        }
 
-  $join_button_visible_after = $source_data['settings']['join_button_visible_after'];
-    if($join_button_visible_after != 'show_always_open') {
-    $join_button_visible_after_seconds = $source_data['settings']['join_button_visible_after'] * 60;
-    $hide_button_at = $end_event->getTimestamp() + $join_button_visible_after_seconds;
-    // We do not want to hide the button, as long as the 
-    // event did not start    
-      if ($current_date > $hide_button_at) {
-        $form['submit']['#access'] = FALSE;
-      }
-      else {   
-        $form['submit']['#access'] = TRUE;   
-        $timer_settings = [
-          'unixtimestamp' => $hide_button_at,
-          'fontsize' => $font_size,
-          'timer_element' => $timer_element,
-          'form_class' => $form_class,
-        ];
-        $form['timer'] = [
-          '#markup' => '<div id="'. $timer_element .'" class="jquery-timer"></div><div id="jquery-countdown-timer-note"></div>',
-        ];
-        $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
-        $form['#attached']['drupalSettings']['timer'][$nid] = $timer_settings;
+        $join_button_visible_after = $virtual_event_bbb_config_entity->getJoinButtonVisibleAfter();
+        if($join_button_visible_after != 'show_always_open') {
+          $join_button_visible_after_seconds = $join_button_visible_after * 60;
+          $hide_button_at = $end_event->getTimestamp() + $join_button_visible_after_seconds;
+          // We do not want to hide the button, as long as the 
+          // event did not start    
+          if ($current_date > $hide_button_at) {
+            $form['submit']['#access'] = FALSE;
+          }
+          else {   
+            $form['submit']['#access'] = TRUE;   
+            $timer_settings = [
+              'unixtimestamp' => $hide_button_at,
+              'fontsize' => $font_size,
+              'timer_element' => $timer_element,
+              'form_class' => $form_class,
+            ];
+            $form['timer'] = [
+              '#markup' => '<div id="'. $timer_element .'" class="jquery-timer"></div><div id="jquery-countdown-timer-note"></div>',
+            ];
+            $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
+            $form['#attached']['drupalSettings']['timer'][$nid] = $timer_settings;
+          }
+        }
       }
     }
-
     // Make sure we act on event nodes only
     // Make sure Event organizers are not effected
     if (isset($node_type) && $node_type === 'event' && !social_event_manager_or_organizer()) {
@@ -227,8 +360,7 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
     if (isset($node_type) && $node_type === 'event') { 
       // Define custom submit handler for enrollment service
       $form['#submit'] = ['social_virtual_event_bbb_submit_handler'];
-    }
-    
+    }    
   }
 }
 
@@ -305,31 +437,7 @@ function social_virtual_event_bbb_submit_handler(array $form, FormStateInterface
 
       $url = $bbb->getJoinMeetingURL($joinMeetingParams);
 
-      // Get BBB API Call and send data to clients
-      //$socialVirtualEventBBBCommon = \Drupal::service('social_virtual_event_bbb.common');
-      //$data = $socialVirtualEventBBBCommon->nodejsGetBBBStatistic($node);
-      /*
-      if($data) {
-        \Drupal::logger('social_virtual_event_bbb')->notice($node->id());
-        $testing['#markup'] = 'Super!!!';
-        $themed_data = [
-          '#theme' => 'social_virtual_event_bbb_statistic',
-          '#statistic' => $data,
-          '#prefix' => '<div id="bbb-meeting-info" class="card__block">',
-          '#suffix' => '</div>'
-        ];
-        $replace_command = new ReplaceCommand('#bbb-meeting-info', $themed_data);
-        $commands[] = $replace_command->render();
-
-        $nodejs_message = (object) [
-          'channel' => '106',
-          'commands' => $commands,
-          'callback' => 'nodejsBBBEventStatistic',
-        ];
-        nodejs_send_content_channel_message($nodejs_message);
-        //nodejs_send_message($nodejs_message);
-      }
-      */
+      
 
       // Join the Meeting
       $form_state->setResponse(new TrustedRedirectResponse($url));
@@ -431,17 +539,25 @@ function social_virtual_event_bbb_get_name_for_unauthenticated_users($token, $ni
  */
 function social_virtual_event_bbb_config_schema_info_alter(&$definitions) {
   if(isset($definitions['virtual_events.event.virtual_event_bbb'])) {
-    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['join_button_visible_before'] = [
+    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['moderator_only_message'] = [
       'type' => 'string',
-      'lable' => 'Join button visible before'
+      'label' => 'Message for moderators only'
     ];
-    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['join_button_visible_after'] = [
-      'type' => 'string',
-      'lable' => 'Join button visible after'
-    ];
+    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['allow_mods_to_unmute_users'] = [
+      'type' => 'boolean',
+      'label' => 'Allow mods to unmute users'
+    ];    
     $definitions['virtual_events.event.virtual_event_bbb']['mapping']['mute_on_start'] = [
       'type' => 'boolean',
       'lable' => 'Mute on start'
+    ];
+
+
+    /*
+
+    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['join_button_visible_after'] = [
+      'type' => 'string',
+      'lable' => 'Join button visible after'
     ];
     $definitions['virtual_events.event.virtual_event_bbb']['mapping']['recording_access'] = [
       'type' => 'sequence',
@@ -451,6 +567,7 @@ function social_virtual_event_bbb_config_schema_info_alter(&$definitions) {
         'label' => 'Option'
       ]
     ];
+    */
   }
 }
 
@@ -497,6 +614,64 @@ function social_virtual_event_bbb_update_event_form_submit(array $form, FormStat
 
   }
 }
+
+/**
+ * Implements hook_preprocess_node()
+ * We need to disable the Author Information
+ */
+function social_virtual_event_bbb_preprocess_node(&$variables) {
+  if ($variables['view_mode'] === 'bbb_recording') {  
+    $variables['display_submitted'] = FALSE;
+    if(isset($variables['content']['ongoing'])) {
+      unset($variables['content']['ongoing']);
+    }
+    if(isset($variables['content']['enrollments_count'])) {
+      unset($variables['content']['enrollments_count']);
+    }
+    if(isset($variables['label'])) {
+      unset($variables['label']);
+    }
+  } 
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for block templates.
+ */
+function social_virtual_event_bbb_preprocess_block(&$variables) {
+  //kint($variables);
+  if ($variables['plugin_id'] == 'views_block:bbb_recording_list-block') { 
+    $view = $variables['content']['view_build']['#view'];
+    if(!empty($view->get_total_rows)) {
+      $variables['content']['#prefix'] = '<div class="card__block">';
+      $variables['content']['#suffix'] = '</div>';
+    }    
+  }
+}
+
+/**
+ * Implements extra submit handler for settings.
+ */
+function social_virtual_event_extra_form_submit(array $form, FormStateInterface $form_state) {
+  
+  $config = $form_state->getValue('social_virtual_event_bbb_config_entity');
+  $node = $form_state->getformObject()->getEntity();
+  
+  // Set a Drupal state to retrieve the given value later
+  if (isset($config) && is_array($config)) {
+    $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
+    $isConfig = $socialVirtualEventsCommon->getSocialVirtualEventBBBEntityConfig($node->id());
+    if ($isConfig) {
+      // Update
+      $update = $socialVirtualEventsCommon->updateSocialVirtualEventBBBEntityConfig($node->id(),$config);
+    }
+    else {
+      // Create
+      $create = $socialVirtualEventsCommon->createSocialVirtualEventBBBEntityConfig($node->id(),$config);
+    }
+  }
+
+}
+
 
 
 

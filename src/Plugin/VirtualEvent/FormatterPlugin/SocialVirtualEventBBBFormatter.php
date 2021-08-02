@@ -130,6 +130,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
     $entity_bundle = $entity->bundle();
     $entity_id = $entity->id();
     $BBBKeyPluginManager = \Drupal::service('plugin.manager.bbbkey_plugin');
+    $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
 
     
     //$element = [];
@@ -212,40 +213,45 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
 
           if ($display_options["recordings"]["show_recordings"]) {
 
-            $grant_access = FALSE;
+            // Check if we have to restrict recording access
+            $virtual_event_bbb_config_entity = $socialVirtualEventsCommon->getSocialVirtualEventBBBEntityConfig($entity_id);
+            $grant_access = TRUE;
 
-            if (isset($settings['recording_access']) && $settings['recording_access'] === 'recording_access_viewer_moderator' ) {
-              if ($entity->access('update')) {
-                $grant_access = TRUE;
+            if ($virtual_event_bbb_config_entity) {
+              $grant_access = FALSE;
+              $recording_access = $virtual_event_bbb_config_entity->getRecordingAccess();
+              
+              if ($recording_access === 'recording_access_viewer_moderator') {
+                if ($entity->access('update')) {
+                  $grant_access = TRUE;
+                }
               }
-            }
 
-            if (isset($settings['recording_access']) && $settings['recording_access'] === 'recording_access_viewer' ) {
-              if ($entity->access('view')) {
-                $grant_access = TRUE;
+              if ($recording_access === 'recording_access_viewer') {
+                if ($entity->access('view')) {
+                  $grant_access = TRUE;
+                }
               }
-            }
 
-
-            if (isset($settings['recording_access']) && $settings['recording_access'] === 'recording_access_viewer_authenticated' ) {
-              if ($entity->access('view') && $user->isAuthenticated()) {
-                $grant_access = TRUE;
+              if ($recording_access === 'recording_access_viewer_authenticated') {
+                if ($entity->access('view') && $user->isAuthenticated()) {
+                  $grant_access = TRUE;
+                }
               }
-            }
 
-            if (isset($settings['recording_access']) && $settings['recording_access'] === 'recording_access_viewer_enrolled' ) {
+              if ($recording_access === 'recording_access_viewer_enrolled') {
+                $event_enrollment = \Drupal::entityTypeManager()->getStorage('event_enrollment');
+                $enrolled = $event_enrollment->loadByProperties([
+                  'field_account' => $user->id(),
+                  'field_event' => $entity_id,
+                  'field_enrollment_status' => 1,
+                ]);
              
-              $event_enrollment = \Drupal::entityTypeManager()->getStorage('event_enrollment');
-              $enrolled = $event_enrollment->loadByProperties([
-                'field_account' => $user->id(),
-                'field_event' => $entity_id,
-                'field_enrollment_status' => 1,
-              ]);
-             
-              if ($entity->access('view') && $enrolled) {
-                $grant_access = TRUE;
+                if ($entity->access('view') && $enrolled) {
+                  $grant_access = TRUE;
+                }
               }
-            } 
+            }
             
             if ($grant_access) {
             

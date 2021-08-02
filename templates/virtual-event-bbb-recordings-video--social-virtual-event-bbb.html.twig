@@ -1,0 +1,13 @@
+<h2>{{'Recordings'|t}}</h2>
+{% if recordings%}
+    <ul>
+        {% for recording in recordings %}
+            <li>
+                <iframe src="{{ recording.url }}" frameborder="0" width="100%" height="400px"></iframe>
+                <div><a href="{{ recording.url }}" target="_blank">Open Video in new tab</a></div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <h3>No Recordings available</h3>
+{% endif %}

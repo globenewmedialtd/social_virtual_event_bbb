@@ -174,6 +174,7 @@ class SocialVirtualEventBBBStatisticsBlock extends BlockBase implements Containe
   public function build() {
     $build = [];
     $buttons = [];
+    $content = [];
 
     // Get current node so we can build correct links.
     $node = \Drupal::routeMatch()->getParameter('node');
@@ -186,26 +187,44 @@ class SocialVirtualEventBBBStatisticsBlock extends BlockBase implements Containe
     }
     // Check for an node type of event
     if ($node instanceof NodeInterface && $node->getType() === 'event') {  
+      
 
       // Get the data from BBB
       $data = $this->socialVirtualEventBBBCommon->nodejsGetBBBStatistic($node);
-      //kint($data);
-      
-      // Theme the data
-      $content = [
-        '#theme' => 'social_virtual_event_bbb_statistic',
-        '#statistic' => $data,
-        '#prefix' => '<div id="bbb-meeting-info" class="card__block">',
-        '#suffix' => '</div>'
-      ];
+      $nodejs = $this->socialVirtualEventBBBCommon->isNodejsActive();
 
-      nodejs_send_content_channel_token($node->id());
+      if ($data) {     
+      
+        // Theme the data
+        $content = [
+          '#theme' => 'social_virtual_event_bbb_statistic',
+          '#statistic' => $data,
+          '#prefix' => '<div id="bbb-meeting-info" class="card__block">',
+          '#suffix' => '</div>'
+        ];        
+
+      }
+      else {
+        // Theme the data
+        $content = [
+          '#theme' => 'social_virtual_event_bbb_statistic',
+          '#statistic' => $data,
+          '#prefix' => '<div id="bbb-meeting-info" class="card__block visually-hidden">',
+          '#suffix' => '</div>'
+        ];
+      }
+      
+      if ($nodejs) {
+
+        nodejs_send_content_channel_token($node->id());
+        $build['#attached']['library'][] = 'social_virtual_event_bbb/nodejs_bbb_statistic';
+
+      }
 
       // Build the block
-      $build['content'] = $content;   
+      $build['content'] = $content;
       $build['#attached']['library'][] = 'social_virtual_event_bbb/bbb_statistic';  
-      $build['#attached']['library'][] = 'social_virtual_event_bbb/nodejs_bbb_statistic';
-        
+      
     }
     return $build;
   }

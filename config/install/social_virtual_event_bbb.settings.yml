@@ -1,0 +1,10 @@
+recording_admin_only: false
+recording_access_default: recording_access_viewer_authenticated
+recording_access_allowed: {  }
+bbb_statistic_refresh: '10'
+count_down_font_size: 28
+count_down_date_time_format: 0
+nodejs_support: false
+join_meeting_button_before_default: show_always_open
+join_meeting_button_after_default: show_always_open
+add_bbb_server_callback: false

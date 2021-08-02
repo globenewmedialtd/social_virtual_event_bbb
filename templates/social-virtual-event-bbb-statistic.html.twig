@@ -16,23 +16,20 @@
  */
 #}
 <div class="bbb-meeting-statistic">
-  <div class="bbb__row clear">
-    <h2>{{ statistic.meeting_name }}</h2>
-  </div>
-
-  <div class="bbb__row clear">
+  <div class="bbb__row row bg-info clear">
     <div class="bbb__label">Viewers</div>
     <div class="bbb__value">{{ statistic.count_viewers }}</div>
   </div>
-  <div class="bbb__row clear">
-    <div class="bbb__label">moderators</div>
+  <div class="bbb__row row clear">
+    <div class="bbb__label">Moderators</div>
     <div class="bbb__value">{{ statistic.count_moderators }}</div>     
   </div>
+  <div class="bbb__row row bg-info clear">
+    <div class="bbb__label">Meeting running</div>
+    <div class="bbb__value">{{ statistic.meeting_running ? 'Yes' : 'No' }}</div>     
+  </div>
+  <div class="bbb__row row clear">
+    <div class="bbb__label">Meeting joined</div>
+    <div class="bbb__value">{{ statistic.meeting_joined ? 'Yes' : 'No' }}</div>     
+  </div>  
 </div>
-
-<ul class="list-group">
-  <li class="list-group-item">    
-    Cras justo odio
-    <span class="badge">14</span>
-  </li>
-</ul>

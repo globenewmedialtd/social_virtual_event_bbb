@@ -1,0 +1,33 @@
+<h2>{{'Recordings'|t}}</h2>
+<style>
+  .ui-dialog{
+    height: {{display_options.modal.height}} !important;
+  }
+  .ui-dialog-content{
+    max-height: none !important;
+    position: absolute !important;
+    top: 40px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+  }
+
+  .block-virtual-events-block .btn.join-meeting{
+    width: auto;
+    margin: 27px auto;
+  }
+</style>
+{% if recordings%}
+  <div class="recordings-wrapper">
+    {% for recording in recordings %}
+      <a class="meeting-recording use-ajax"
+         data-dialog-options="{&quot;width&quot;:&quot;{{display_options.modal.width}}&quot;}"
+         data-dialog-type="modal"
+         href="{{ url }}/{{ recording.recordID }}">
+        <img src="{{recording.preview.images.image.0}}" />
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <h3>No Recordings available</h3>
+{% endif %}

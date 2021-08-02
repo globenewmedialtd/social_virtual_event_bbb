@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - serialization
+    - social_virtual_event_bbb
+    - user
+id: rest_resource_bbb_meeting
+plugin_id: rest_resource_bbb_meeting
+granularity: resource
+configuration:
+  methods:
+    - POST
+  formats:
+    - json
+  authentication:
+    - cookie

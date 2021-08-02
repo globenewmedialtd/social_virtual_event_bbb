@@ -20,11 +20,20 @@ social_virtual_event_bbb.settings:
       allowed_option:
         type: string
         label: 'Allowed option'
+    join_meeting_button_before_default:
+        type: string
+        label: 'Join Meeting Button Before Default'
+    join_meeting_button_after_default:
+        type: string
+        label: 'Join Meeting Button After Default'    
     count_down_font_size:
       type: integer
       label: 'Count down display font size'
     count_down_date_time_format:
       type: integer
       label: 'Count down date time format'
+    add_bbb_server_callback:
+      type: boolean
+      label: 'Add Callback when creating a meeting'
 
     

@@ -1,0 +1,25 @@
+social_virtual_event_bbb.virtual_event_bbb_config_entity.*:
+  type: config_entity
+  label: 'Social virtual event bbb config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    node:
+      label: 'Node'
+      type: mapping
+      mapping:
+        target_id:
+          type: string
+          label: 'Value'
+    recording_access:
+      type: string
+      label: 'Recording Access'
+    join_button_visible_before:
+      type: string
+      label: 'Join button visible before'
+    join_button_visible_after:
+      type: string
+      label: 'Join button visible after'
+    uuid:
+      type: string
