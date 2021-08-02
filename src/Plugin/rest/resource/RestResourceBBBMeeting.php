@@ -133,7 +133,7 @@ class RestResourceBBBMeeting extends ResourceBase {
         $socialVirtualEventBBBCommon = \Drupal::service('social_virtual_event_bbb.common');
         $bbb_meeting_statistic = $socialVirtualEventBBBCommon->nodejsGetBBBStatistic($node);
         $nodejs = $socialVirtualEventBBBCommon->isNodejsActive();
-        $response_status['nodejs'] = $nodejs;
+        $response_status['stats'] = $bbb_meeting_statistic;
 
         if($nodejs) {          
           if($bbb_meeting_statistic) {

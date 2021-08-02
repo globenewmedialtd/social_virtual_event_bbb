@@ -82,7 +82,7 @@ class SocialVirtualEventBBBSettingsForm extends ConfigFormBase {
       '#type' => 'select',
       '#title' => $this->t('Recording access default'),
       '#options' => $recording_access_allowed_options,
-      '#default_value' => $config->get('recording_access_default') ? $config->get('recording_access_default') : 'recording_access_viewer',
+      '#default_value' => $config->get('recording_access_default') ? $config->get('recording_access_default') : '',
     ];
 
     $form['recordings']['recording_access_allowed'] = [
@@ -90,7 +90,7 @@ class SocialVirtualEventBBBSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Recording access allowed'),
       '#options' => $recording_access_allowed_options,
       '#description' => t('Define who can access recordings. If you do not enable any option, all will be allowed inside the virtual event setting.'),
-      '#default_value' => $config->get('recording_access_allowed') ? $config->get('recording_access_allowed') : 'recording_access_viewer',
+      '#default_value' => $config->get('recording_access_allowed') ? $config->get('recording_access_allowed') : [],
     ];
 
     $form['bbb_event_statistic'] = [
@@ -145,7 +145,7 @@ class SocialVirtualEventBBBSettingsForm extends ConfigFormBase {
         '#type' => 'checkbox',
         '#title' => $this->t('Activate NODEJS'),
         '#description' => $this->t('Nodejs module detected. Please configure nodejs properly and activate nodejs if you are sure it is up and running.'),
-        '#default_value' => $config->get('nodejs_support') ? $config->get('nodejs_support') : FALSE
+        '#default_value' => $config->get('nodejs_support') ? $config->get('nodejs_support') : FALSE,
       ];
 
     }
@@ -153,7 +153,7 @@ class SocialVirtualEventBBBSettingsForm extends ConfigFormBase {
     $form['add_bbb_server_callback'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Add BBB Server Callback when creating meeting'),
-      '#default_value' => $config->get('add_bbb_server_callback') ? $config->get('add_bbb_server_callback') : FALSE
+      '#default_value' => $config->get('add_bbb_server_callback') ? $config->get('add_bbb_server_callback') : FALSE,
     ];
 
     $form['actions']['submit'] = [
