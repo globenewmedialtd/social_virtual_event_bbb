@@ -2,6 +2,49 @@
 This module overwrites the handling for Virtual Event BBB Meetings
 ## Installation
 Install this module like any other Drupal module.
+## Configuaration
+After installing the module please configure as followed:
+- 1. Visit your content type 'event' admin/structure/types/manage/event/display and enable the new view mode 'BBB Recording'
+- 2. Now make sure that the display 'BBB Recording' shows only the field formatter 'Virtual Event BBB Meeting Formatter' and the 'Get the related GROUP NAME group groups for this entity. Depending on your available groups. You can watch at a different view mode to see what you need.
+- 3. Visit your Block Layout and enable the following blocks: 'BBB Recording List', 'Social Virtual Event BBB Join Button Block' and if you have activated NODEJS you may want to enable 'Social Virtual Event BBB Statistics Block'
+- 4. Please make sure that you enalbe block visibility. All blocks work only on Node type events.
+
+## Nodejs - Installation
+You need to have Node.js version 10+ installed on your system. 
+- 1. https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-18-04-de
+- 2. npm install drupal-node.js
+- 3. Be sure the install the app outside of Drupal's root directory. The correct installation root would be the main direcotry of your project where your composer.json lives. After installing you should see node_modules inside your projects main directory.
+- 4. Visit the backend config for nodejs: admin/config/nodejs/settings
+- 5. Define Host name for NODEJS Server, The server port should be set to 8080, if available. Define a service key and rember that key. Define Node.js server host for client javascript. Set port again to 8080 if possible.
+- 6. Now visit the nodejs config file inside node_modules/drupal-node.js/nodejs.config.js
+
+Exmaple:
+
+'settings = {
+  scheme: 'http',
+  port: 8080,
+  host: 'localhost',
+  serviceKey: 'test',
+  backend: {
+    port: 80,
+    host: 'social10.test',
+    scheme: 'http',
+    basePath: '',
+    messagePath: '/nodejs/message'
+  },
+  debug: true,
+  bodyParserJsonLimit: '1mb',
+  sslKeyPath: '',
+  sslCertPath: '',
+  sslCAPath: '',
+  baseAuthPath: '/nodejs/',
+  extensions: [],
+  socketOptions: {}
+};' 
+
+- 7. Now start the app with node app.js inside that directory. On production you may want to use forever or pm2 to make sure nodejs will be running without the need to start it all the time.
+
+
 ## Dependencies
 Make sure you have installed and enabled the following modules:
 - virtual_event_bbb

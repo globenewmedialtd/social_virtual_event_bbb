@@ -111,10 +111,6 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
         $createMeetingParams->setMuteOnStart(TRUE);
       }
 
-      if($source_data["settings"]["allow_mods_to_unmute_users"]) {
-        $createMeetingParams->setAllowModsToUnmuteUsers(TRUE);
-      }
-
       try {
         $response = $bbb->createMeeting($createMeetingParams);
         if ($response->getReturnCode() == 'FAILED') {
@@ -257,17 +253,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#title' => t('Mute on start'),
       '#default_value' => $settings['mute_on_start'] ? $settings['mute_on_start'] : TRUE,
       '#disabled' => $event !== NULL, 
-    ];
-    $form['allow_mods_to_unmute_users'] = [
-      '#type' => 'checkbox',
-      '#options' => [
-         0 => t('Disable'),
-         1 => t('Enable'),
-      ],
-      '#title' => t('Allow mods to unmute users'),
-      '#default_value' => $settings['allow_mods_to_unmute_users'] ? $settings['allow_mods_to_unmute_users'] : FALSE,
-      '#disabled' => $event !== NULL, 
-    ];
+    ];    
     $form['record'] = [
       '#title' => t('Record meeting'),
       '#type' => 'select',

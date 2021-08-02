@@ -543,31 +543,10 @@ function social_virtual_event_bbb_config_schema_info_alter(&$definitions) {
       'type' => 'string',
       'label' => 'Message for moderators only'
     ];
-    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['allow_mods_to_unmute_users'] = [
-      'type' => 'boolean',
-      'label' => 'Allow mods to unmute users'
-    ];    
     $definitions['virtual_events.event.virtual_event_bbb']['mapping']['mute_on_start'] = [
       'type' => 'boolean',
       'lable' => 'Mute on start'
     ];
-
-
-    /*
-
-    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['join_button_visible_after'] = [
-      'type' => 'string',
-      'lable' => 'Join button visible after'
-    ];
-    $definitions['virtual_events.event.virtual_event_bbb']['mapping']['recording_access'] = [
-      'type' => 'sequence',
-      'label' => 'Recording access',
-      'option' => [
-        'type' => 'string',
-        'label' => 'Option'
-      ]
-    ];
-    */
   }
 }
 
