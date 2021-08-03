@@ -9,6 +9,7 @@ After installing the module please configure as followed:
 - 3. Visit your Block Layout and enable the following blocks: 'BBB Recording List', 'Social Virtual Event BBB Join Button Block' and if you have activated NODEJS you may want to enable 'Social Virtual Event BBB Statistics Block'
 - 4. Please make sure that you enalbe block visibility. All blocks work only on Node type events.
 - 5. Visit admin/virtual_events/settings and save your preferred settings for the module.
+- 6. Visit admin/virtual_events/virtual_events_formatter_entity/event_display_settings. Please tick [x] Show only recordings and [x] Show in entity page if you want to show the recordings only and show the "join meeting button" as block only.
 
 ## Nodejs - Installation
 You need to have Node.js version 10+ installed on your system. 
