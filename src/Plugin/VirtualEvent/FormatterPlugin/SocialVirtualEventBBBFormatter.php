@@ -38,36 +38,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
       '#description' => t('Show meeting as iframe'),
     ];
 
-    $form['recordings'] = [
-      '#type' => 'details',
-      '#title' => t('Recordings'),
-    ];
-    $form['recordings']['show_recordings'] = [
-      '#title' => t('Show Recordings'),
-      '#type' => 'checkbox',
-      '#default_value' => $options["recordings"]["show_recordings"] ? TRUE : FALSE,
-      '#description' => t('Show meeting recordings if any'),
-      '#attributes' => [
-        'id' => 'field_show_recordings',
-      ],
-    ];
-    $form['recordings']['recordings_display'] = [
-      '#title' => t('Recordings Display'),
-      '#type' => 'select',
-      "#options" => [
-        'links' => "Links",
-        'linked_thumbnails' => "Linked Thumbnails",
-        'video' => "Video Player",
-      ],
-      '#default_value' => $options["recordings"]["recordings_display"] ? $options["recordings"]["recordings_display"] : 'links',
-      '#maxlength' => 255,
-      '#states' => [
-        'visible' => [
-          ':input[id="field_show_recordings"]' => ['checked' => TRUE],
-        ],
-      ],
-      '#description' => t('How to display the recordings'),
-    ];
+    unset($form['recordings']);    
 
     $form['modal'] = [
       '#type' => 'details',
@@ -104,13 +75,7 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
           ':input[id="field_open_in_modal"]' => ['checked' => TRUE],
         ],
       ],
-    ];
-
-    $form['show_recordings_only'] = [
-      '#type' => 'checkbox',
-      '#title' => t('Show only recordings'),
-      '#default_value' => $options['show_recordings_only'] ? $options['show_recordings_only'] : FALSE, 
-    ];   
+    ];  
 
     return $form;
 
@@ -210,121 +175,8 @@ class SocialVirtualEventBBBFormatter extends VirtualEventBBBFormatter {
              }         
             }         
 
+            unset($element["meeting_recordings"]);
 
-          if ($display_options["recordings"]["show_recordings"]) {
-
-            // Check if we have to restrict recording access
-            $virtual_event_bbb_config_entity = $socialVirtualEventsCommon->getSocialVirtualEventBBBEntityConfig($entity_id);
-            $grant_access = TRUE;
-
-            if ($virtual_event_bbb_config_entity) {
-              $grant_access = FALSE;
-              $recording_access = $virtual_event_bbb_config_entity->getRecordingAccess();
-              
-              if ($recording_access === 'recording_access_viewer_moderator') {
-                if ($entity->access('update')) {
-                  $grant_access = TRUE;
-                }
-              }
-
-              if ($recording_access === 'recording_access_viewer') {
-                if ($entity->access('view')) {
-                  $grant_access = TRUE;
-                }
-              }
-
-              if ($recording_access === 'recording_access_viewer_authenticated') {
-                if ($entity->access('view') && $user->isAuthenticated()) {
-                  $grant_access = TRUE;
-                }
-              }
-
-              if ($recording_access === 'recording_access_viewer_enrolled') {
-                $event_enrollment = \Drupal::entityTypeManager()->getStorage('event_enrollment');
-                $enrolled = $event_enrollment->loadByProperties([
-                  'field_account' => $user->id(),
-                  'field_event' => $entity_id,
-                  'field_enrollment_status' => 1,
-                ]);
-             
-                if ($entity->access('view') && $enrolled) {
-                  $grant_access = TRUE;
-                }
-              }
-            }
-            
-            if ($grant_access) {
-            
-              $apiUrl = $keys["url"];
-              $secretKey = $keys["secretKey"];
-              $bbb = new VirtualEventBBB($secretKey, $apiUrl);
-
-              $recordingParams = new GetRecordingsParameters();
-              $recordingParams->setMeetingID($event->id());
-
-              try {
-                $response = $bbb->getRecordings($recordingParams);                
-                if (!empty($response->getRawXml()->recordings->recording)) {
-                  $recordings = [];
-                  foreach ($response->getRawXml()->recordings->recording as $key => $recording){
-                    foreach ($recording->playback as $key => $playback){
-                      foreach ($recording->playback->format as $key => $format){
-                        if($format->type == "video_mp4" || $format->type == "presentation"){
-                          $format->recordID = $recording->recordID;
-                          $recordings[] = $format;
-                        }
-                      }
-                    }
-                  }
-
-                  
-
-                switch ($display_options["recordings"]["recordings_display"]) {
-                  case 'links':
-                    $element["meeting_recordings"] = [
-                      '#theme' => 'virtual_event_bbb_recordings_links',
-                      '#url' => Url::fromRoute('virtual_event_bbb.virtual_event_b_b_b_recording_controller_view_recording', ['event' => $event->id()]),
-                      '#display_options' => $display_options,
-                      '#recordings' => $recordings,
-                    ];
-                    break;
-
-                  case 'linked_thumbnails':
-                    $element["meeting_recordings"] = [
-                      '#theme' => 'virtual_event_bbb_recordings_linked_thumbnails',
-                      '#url' => Url::fromRoute('virtual_event_bbb.virtual_event_b_b_b_recording_controller_view_recording', ['event' => $event->id()]),
-                      '#display_options' => $display_options,
-                      '#recordings' => $recordings,
-                    ];
-                    break;
-
-                  case 'video':
-                    $element["meeting_recordings"] = [
-                      '#theme' => 'virtual_event_bbb_recordings_video',
-                      '#recordings' => $recordings,
-                    ];
-                    break;
-
-                  default:
-                    $element["meeting_recordings"] = [
-                      '#theme' => 'virtual_event_bbb_recordings_links',
-                      '#url' => Url::fromRoute('virtual_event_bbb.virtual_event_b_b_b_recording_controller_view_recording', ['event' => $event->id()]),
-                      '#display_options' => $display_options,
-                      '#recordings' => $recordings,
-                    ];
-                    break;
-                }
-              }
-              } catch (\RuntimeException $exception) {
-                watchdog_exception('virtual_event_bbb', $exception, $exception->getMessage());
-                drupal_set_message(t("Couldn't get recordings! please contact system administrator."), 'error');
-              }
-            }
-            else {
-              // We do not have any right to see recordings
-              unset($element["meeting_recordings"]);
-            }
-          }
         }
         else {
           $element["join_link"] = \Drupal::formBuilder()->getForm(VirtualEventBBBLinkForm::class, $event);

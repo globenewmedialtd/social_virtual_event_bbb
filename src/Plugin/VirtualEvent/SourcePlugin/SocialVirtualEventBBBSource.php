@@ -204,20 +204,31 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       $settings = $source_data["settings"];
     }
 
-    $social_virtual_event_bbb_common = \Drupal::service('social_virtual_event_bbb.common');
-    $default_recording_access_allowed_options = $social_virtual_event_bbb_common->getAllAllowedRecordingAccessOptions();
-    
-    $recording_access = $settings["recording_access"];
+    $entity = $form_state->getformObject()->getEntity();
+    $entityTypeId = $entity->getEntityTypeId();
+    $entityBundle = $entity->bundle();
 
-    $social_virtual_event_bbb = \Drupal::config('social_virtual_event_bbb.settings');
-    $recording_access_allowed_options = $social_virtual_event_bbb->get('recording_access_allowed');
-    $recording_access_allowed_default_option = $social_virtual_event_bbb->get('recording_access_default');
+    $is_original_language = (bool) $entity->getFieldValue('default_langcode', 'value');
     
-    if (!isset($recording_access_allowed_options) || empty($recording_access_allowed_options)) {
-      $recording_access_allowed = $default_recording_access_allowed_options;
+    if (!$is_original_language) {
+      $on_translation_disabled = TRUE;
+      $on_translation_description = t('This field has been disabled when translating.');      
     }
     else {
-      $recording_access_allowed = array_intersect_key($default_recording_access_allowed_options, $recording_access_allowed_options);
+      $on_translation_disabled = FALSE;
+      $on_translation_description = '';
+    }
+
+    if (!$is_original_language) {
+      $form['translate_info'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $on_translation_description,
+        '#weight' => -100,
+        '#attributes' => [
+          'class' => ['help-block']
+        ]
+      ];
     }
 
     $form['welcome'] = [
@@ -264,11 +275,93 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       ],
       '#description' => t('Whether to automatically start recording when first user joins, Moderators in the session can still pause and restart recording using the UI control.'),
       '#disabled' => $event !== NULL,
-    ];    
+    ];
+
+    if (isset($entityTypeId) && isset($entityBundle) && $entityTypeId === 'node' && $entityBundle === 'event' ) {
+
+      $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
+      // Recording Access
+      $default_recording_access_allowed_options = $socialVirtualEventsCommon->getAllAllowedRecordingAccessOptions();
+      $social_virtual_event_bbb_settings = \Drupal::config('social_virtual_event_bbb.settings');
+      $recording_access_allowed_options = $social_virtual_event_bbb_settings->get('recording_access_allowed');
+      $recording_access_allowed_default_option = $social_virtual_event_bbb_settings->get('recording_access_default');
+      // Get Join Meeting Button options
+      $join_meeting_button_options = $socialVirtualEventsCommon->getOptionsForJoinMeetingButton();
+      // Join Meeting Button Before
+      $join_meeting_button_before_default_option = $social_virtual_event_bbb_settings->get('join_meeting_button_before_default');
+      // Join Meeting Button After
+      $join_meeting_button_after_default_option = $social_virtual_event_bbb_settings->get('join_meeting_button_after_default');
+      // Get config for the event    
+      $config = $socialVirtualEventsCommon->getSocialVirtualEventBBBEntityConfig($entity->id());
+   
+      if ($config) {
+        $recording_access_default = $config->getRecordingAccess();
+        $join_meeting_button_visible_before_default = $config->getJoinButtonVisibleBefore();
+        $join_meeting_button_visible_after_default = $config->getJoinButtonVisibleAfter();       
+      }
+      
+  
+      if (!isset($recording_access_allowed_options) || empty($recording_access_allowed_options)) {
+        $recording_access_allowed = $default_recording_access_allowed_options;
+      }
+      else {
+        $recording_access_allowed = array_intersect_key($default_recording_access_allowed_options, $recording_access_allowed_options);
+      }
+
+      // Attach new fieldset
+      $form['social_virtual_event_bbb_config_entity'] = [
+        '#type' => 'fieldset',
+        '#title' => t('Virtual Event BBB extra settings'),      
+        '#tree' => TRUE,
+        '#description' => $on_translation_description,
+        '#weight' => 5,
+        '#states' => [
+          'visible' => [
+            ':input[name="virtual_events_sources[enable_virtual_session]"]' => ['checked' => TRUE],
+          ]
+        ],
+        '#attributes' => [
+          'class' => [
+            'card'
+          ]
+        ]
+      ];
+      $form['social_virtual_event_bbb_config_entity']['recording_access'] = [
+        '#type' => 'select',
+        '#title' => t('Who can see the recordings?'),
+        '#options' => $recording_access_allowed,
+        '#default_value' => $recording_access_default ? $recording_access_default : $recording_access_allowed_default_option,
+        '#disabled' => $on_translation_disabled,
+      ];
+      $form['social_virtual_event_bbb_config_entity']['join_button_visible_before'] = [
+        '#type' => 'select',
+        '#title' => t('Display join button before event start'),
+        '#default_value' => $join_meeting_button_visible_before_default ? $join_meeting_button_visible_before_default : $join_meeting_button_before_default_option,
+        '#options' => $join_meeting_button_options,
+        '#disabled' => $on_translation_disabled,
+      ];
+      $form['social_virtual_event_bbb_config_entity']['join_button_visible_after'] = [
+        '#type' => 'select',
+        '#title' => t('Display join button after event closes'),
+        '#default_value' => $join_meeting_button_visible_after_default ? $join_meeting_button_visible_after_default : $join_meeting_button_after_default_option,
+        '#options' => $join_meeting_button_options,
+        '#disabled' => $on_translation_disabled,
+      ];
+
+    }
+
+
+    
+
+    
+
+    // Submit handler for config
+    //$form['actions']['submit']['#submit'][] = 'social_virtual_event_extra_form_submit';
+       
 
     // We want to be able to delete the attached event
     // if any.
-    if ($event) {
+    if ($event && $is_original_language) {
       $url = Url::fromRoute('entity.virtual_events_event_entity.delete_form', array('virtual_events_event_entity' => $event->id()),['query' => \Drupal::destination()->getAsArray()]);
       $form['event_reset'] = array(
         '#type' => 'link',
