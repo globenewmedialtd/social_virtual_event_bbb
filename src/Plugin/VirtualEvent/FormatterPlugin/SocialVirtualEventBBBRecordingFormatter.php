@@ -65,7 +65,35 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
         ],
       ],
       '#description' => t('How to display the recordings'),
-    ];    
+    ]; 
+
+    $form['modal'] = [
+      '#type' => 'details',
+      '#title' => t('Modal'),
+    ];
+    
+    $form['modal']['width'] = [
+      '#title' => t('Modal Width'),
+      '#type' => 'textfield',
+      '#default_value' => $options["width"] ? $options["width"] : "95%",
+      '#maxlength' => 255,
+      '#states' => [
+        'visible' => [
+          ':input[id="field_open_in_modal"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+    $form['modal']['height'] = [
+      '#title' => t('Modal Height'),
+      '#type' => 'textfield',
+      '#default_value' => $options["height"] ? $options["height"] : "95%",
+      '#maxlength' => 255,
+      '#states' => [
+        'visible' => [
+          ':input[id="field_open_in_modal"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];  
 
     return $form;
 
