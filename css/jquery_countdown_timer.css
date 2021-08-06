@@ -52,17 +52,10 @@
   top: 0.9em;
 }
 
-#jquery-countdown-timer-note {
-  color: #666666;
+.jquery-countdown-timer-note {
+  color: #000000;
   text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
-  font-size: 12px;
-}
-
-.countWeeks,
-.countDiv0,
-.countDays,
-.countDiv1 {
-  display: none;
+  font-size: 10px;
 }
 
 .jquery-timer {

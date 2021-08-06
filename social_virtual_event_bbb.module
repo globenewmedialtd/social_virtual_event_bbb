@@ -141,6 +141,7 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
 
       $form_class = 'virtual_event_bbb_link_form--' . $nid;
       $timer_element = 'jquery-countdown-timer--' . $nid;
+      $timer_element_note = 'jquery-countdown-timer-note--' . $nid;
 
       $form['#attributes']['class'][] = $form_class;
    
@@ -171,10 +172,11 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
               'unixtimestamp' => $show_button_at,
               'fontsize' => $font_size,
               'timer_element' => $timer_element,
+              'timer_element_note' => $timer_element_note,
               'form_class' => $form_class,
             ];
             $form['countdown'] = [
-              '#markup' => '<div id="'. $timer_element .'" class="jquery-countdown-timer"></div><div id="jquery-countdown-timer-note"></div>',
+              '#markup' => '<div id="'. $timer_element_note .'" class="jquery-countdown-timer-note"></div><div id="'. $timer_element .'" class="jquery-countdown-timer"></div>',
             ];
             $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
             $form['#attached']['drupalSettings']['countdown'][$nid] = $countdown_settings;    
