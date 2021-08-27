@@ -102,6 +102,11 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       $createMeetingParams->setRecord(TRUE);
       $createMeetingParams->setAllowStartStopRecording(TRUE);
       $createMeetingParams->setLogo($logoPath);
+      // Guest Policy      
+      if ($source_data["settings"]["guest_policy"]) {
+        $guest_policy = $source_data["settings"]["guest_policy"];
+        $createMeetingParams->setGuestPolicy($guest_policy);
+      }      
 
       if ($source_data["settings"]["record"]) {
         $createMeetingParams->setAutoStartRecording(TRUE);
@@ -274,6 +279,18 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
         1 => t('Record'),
       ],
       '#description' => t('Whether to automatically start recording when first user joins, Moderators in the session can still pause and restart recording using the UI control.'),
+      '#disabled' => $event !== NULL,
+    ];
+    $form['guest_policy'] = [
+      '#title' => t('Guest policy'),
+      '#type' => 'select',
+      '#default_value' => $settings["guest_policy"] ? $settings["guest_policy"] : "ALWAYS_ACCEPT",
+      '#options' => [
+        'ALWAYS_ACCEPT' => t('Always accept'),
+        'ALWAYS_DENY' => t('Always deny'),
+        'ASK_MODERATOR' => t('Ask moderator'),
+      ],
+      '#description' => t('The guest policy determines whether or not users who send a join request with guest=true will be allowed to join the meeting.'),
       '#disabled' => $event !== NULL,
     ];
 
