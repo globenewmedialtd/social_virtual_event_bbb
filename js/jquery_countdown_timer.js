@@ -32,7 +32,7 @@
             }
 
             var weeks = Math.floor(left / 60 / 60 / 24 / 7),
-                days = Math.floor(left / 60 / 60 / 24) % 7,
+                days = Math.floor(left / 60 / 60 / 24),
                 hours = Math.floor((left / (60 * 60)) % 24),
                 minutes = Math.floor((left / 60) % 60),
                 seconds = left % 60;
@@ -58,8 +58,8 @@
 
         return this;
     };
-
-    function init(elem, options){
+    
+    function init(elem, options){/*
         elem.addClass('countdownHolder').css({ 'font-size': options.font_size + 'px' });
 
         // Creating the markup inside the container
@@ -76,8 +76,9 @@
             if(this != "Secs"){
                 elem.append('<span class="countDiv countDiv' + i + '"></span>');
             }
-        });
+        });*/
     }
+    
 
     // Creates an animated transition between the two numbers
     function switchDigit(position,number){
