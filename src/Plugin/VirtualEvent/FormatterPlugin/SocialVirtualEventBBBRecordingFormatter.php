@@ -14,6 +14,9 @@ use BigBlueButton\Parameters\GetRecordingsParameters;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\Display\EntityDisplayInterface;
 use Drupal\Core\Url;
+use Drupal\group\GroupMembershipLoaderInterface;
+use Drupal\group\Entity\GroupInterface;
+
 
 
 /**
@@ -117,6 +120,7 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
     $BBBKeyPluginManager = \Drupal::service('plugin.manager.bbbkey_plugin');
     $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
 
+
     
     //$element = [];
     $settings = [];
@@ -168,14 +172,30 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
                 }
 
                 if ($recording_access === 'recording_access_viewer_enrolled') {
+
+		  // Set member to false
+                  $is_member = FALSE; 
+
                   $event_enrollment = \Drupal::entityTypeManager()->getStorage('event_enrollment');
                   $enrolled = $event_enrollment->loadByProperties([
                     'field_account' => $user->id(),
                     'field_event' => $entity_id,
                     'field_enrollment_status' => 1,
                   ]);
+
+                 
+		  $group = _social_group_get_current_group($entity);
+
+		  // Get Account
+    		  $account = \Drupal::entityTypeManager()
+        	    ->getStorage('user')
+                    ->load($user->id());
+
+                  if ($group instanceof GroupInterface) {
+                    $is_member = $group->getMember($account);
+                  }
  
-                  if ($entity->access('view') && $enrolled) {
+                  if ($entity->access('view') && ($enrolled || $is_member)) {
                     $grant_access = TRUE;
                   }
                 }
