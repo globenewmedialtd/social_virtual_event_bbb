@@ -103,6 +103,18 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       $createMeetingParams->setAllowStartStopRecording(TRUE);
       $createMeetingParams->setLogo($logoPath);
 
+
+      // Add Metadata
+      $drupalHost = \Drupal::request()->getHost();
+      \Drupal::logger('social_virtual_event_bbb')->notice('<pre><code>' . print_r($drupalHost, TRUE) . '</code></pre>' );
+      $createMeetingParams->addMeta("bbb-origin", "Drupal");
+      if (isset($drupalHost)) {
+        $createMeetingParams->addMeta("bbb-origin-server-name", $drupalHost);
+      }
+      $createMeetingParams->addMeta("bbb-context", $entity->label());
+      $createMeetingParams->addMeta("bbb-context-id", $entity->id());
+
+
       if ($source_data["settings"]["record"]) {
         $createMeetingParams->setAutoStartRecording(TRUE);
       }
@@ -113,6 +125,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
 
       try {
         $response = $bbb->createMeeting($createMeetingParams);
+        \Drupal::logger('social_virtual_event_bbb')->notice('<pre><code>' . print_r($response, TRUE) . '</code></pre>' );
         if ($response->getReturnCode() == 'FAILED') {
           drupal_set_message(t("Couldn't create room! please contact system administrator."), 'error');
         }
