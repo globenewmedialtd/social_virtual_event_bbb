@@ -51,10 +51,11 @@ class SocialVirtualEventBBBCommonService {
    */
   public function getAllAllowedRecordingAccessOptions() {
     return [
-      'recording_access_viewer' => 'All users (including anonymous users)',
+      'recording_access_viewer' => 'All visitors (including public)',
       'recording_access_viewer_authenticated' => 'All authenticated users',
-      'recording_access_viewer_moderator' => 'Only event organisers',
-      'recording_access_viewer_enrolled' => 'Organisers & participants'
+      'recording_access_viewer_moderator' => 'All Organisers',
+      'recording_access_viewer_enrolled' => 'All Organisers, Group members & enrolled',
+      'recording_access_viewer_group' => 'All Organisers & Group members',
     ];   
   }
 

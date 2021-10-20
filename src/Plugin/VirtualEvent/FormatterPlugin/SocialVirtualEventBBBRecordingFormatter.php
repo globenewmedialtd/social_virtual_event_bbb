@@ -173,7 +173,7 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
 
                 if ($recording_access === 'recording_access_viewer_enrolled') {
 
-		  // Set member to false
+		              // Set member to false
                   $is_member = FALSE; 
 
                   $event_enrollment = \Drupal::entityTypeManager()->getStorage('event_enrollment');
@@ -184,11 +184,11 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
                   ]);
 
                  
-		  $group = _social_group_get_current_group($entity);
+		              $group = _social_group_get_current_group($entity);
 
-		  // Get Account
-    		  $account = \Drupal::entityTypeManager()
-        	    ->getStorage('user')
+		              // Get Account
+    		          $account = \Drupal::entityTypeManager()
+        	          ->getStorage('user')
                     ->load($user->id());
 
                   if ($group instanceof GroupInterface) {
@@ -198,6 +198,29 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
                   if ($entity->access('view') && ($enrolled || $is_member)) {
                     $grant_access = TRUE;
                   }
+                
+                }
+
+                if ($recording_access === 'recording_access_viewer_group') {
+
+                  // Set member to false
+                  $is_member = FALSE; 
+
+                  $group = _social_group_get_current_group($entity);
+
+		              // Get Account
+    		          $account = \Drupal::entityTypeManager()
+        	          ->getStorage('user')
+                    ->load($user->id());
+
+                  if ($group instanceof GroupInterface) {
+                    $is_member = $group->getMember($account);
+                  }
+ 
+                  if ($entity->access('update') && $is_member) {
+                    $grant_access = TRUE;
+                  }
+                
                 }
               }
             }
