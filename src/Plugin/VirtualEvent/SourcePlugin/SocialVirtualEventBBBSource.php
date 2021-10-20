@@ -361,12 +361,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
         '#disabled' => $on_translation_disabled,
       ];
 
-    }
-
-
-    
-
-    
+    } 
 
     // Submit handler for config
     //$form['actions']['submit']['#submit'][] = 'social_virtual_event_extra_form_submit';
@@ -380,7 +375,7 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
         '#type' => 'link',
         '#title' => t('Reset'),
         '#attributes' => array(
-          'class' => array('button', 'button--danger'),
+          'class' => array('btn', 'btn-primary'),
         ),
         '#url' => $url,
       );
