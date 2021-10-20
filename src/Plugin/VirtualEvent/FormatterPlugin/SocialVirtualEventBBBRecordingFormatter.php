@@ -217,7 +217,7 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
                     $is_member = $group->getMember($account);
                   }
  
-                  if ($entity->access('update') && $is_member) {
+                  if ($entity->access('update') || $is_member) {
                     $grant_access = TRUE;
                   }
                 
