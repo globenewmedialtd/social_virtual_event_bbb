@@ -23,11 +23,13 @@
                             dateStrings['@days'] = Drupal.formatPlural(days, '@count day', '@count days');
                             dateStrings['@hours'] = Drupal.formatPlural(hours, '@count hour', '@count hours');
                             dateStrings['@minutes'] = Drupal.formatPlural(minutes, '@count minute', '@count minutes');
-                            //dateStrings['@seconds'] = Drupal.formatPlural(seconds, '@count second', '@count seconds');
+                            dateStrings['@seconds'] = Drupal.formatPlural(seconds, '@count second', '@count seconds');
 			    let message_headline = Drupal.t('Event starts in:');
-			    let message = Drupal.t('@days, @hours, @minutes.', dateStrings);
+			    let message = Drupal.t('@days, @hours, @minutes, @seconds.', dateStrings);
                     	    note.html('<div>' + message_headline + '</div>&nbsp;<div>' + message + '</div>');
                             if (done == 0) {
+                              console.log('yep');
+                              console.log(done);
 			      note.hide();
                               $('#' + value.timer_element).hide();
                               $('form.' + form_class).removeClass('visually-hidden');
