@@ -163,14 +163,16 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
           $join_button_visible_before_seconds = $join_button_visible_before * 60;
           $show_button_at = $start_event->getTimestamp() - $join_button_visible_before_seconds;
           $show_button_at_countdown = $start_event->getTimestamp();
+
           // Attach Javascript and Setting
-          if ($show_button_at_countdown > $current_date) {
+          if ($show_button_at) {
 
             $form['submit']['#access'] = TRUE;  
             $form['submit']['#attributes']['class'][] = 'visually-hidden';
       
             $countdown_settings = [
               'unixtimestamp' => $show_button_at_countdown,
+              'unixtimestamp_before' => $show_button_at,
               'fontsize' => $font_size,
               'timer_element' => $timer_element,
               'timer_element_note' => $timer_element_note,
