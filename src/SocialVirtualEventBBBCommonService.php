@@ -181,6 +181,8 @@ class SocialVirtualEventBBBCommonService {
   public function getOptionsForJoinMeetingButton() {
     return [
       'show_always_open' => t('Show always open'),
+      '5' => t('5 minutes'),
+      '10' => t('10 minutes'),
       '15' => t('15 minutes'),
       '30' => t('30 minutes'),
       '45' => t('45 minutes'),

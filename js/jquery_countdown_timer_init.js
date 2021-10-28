@@ -10,39 +10,47 @@
 
                 $.each( drupalSettings.countdown, function( index, value ) {
                     let ts = new Date(value.unixtimestamp * 1000);
-                    let ts_before = new Date(value.unixtimestamp_before * 1000);
+                    let ts_event = new Date(value.unixtimestamp_event * 1000);
                     let current_date = Math.floor((new Date()) / 1000);                 
                     let form_class = value.form_class + ' button';
-		            let note = $('#' + value.timer_element_note);
-                    // check and see if we need to show the counter
-                    if (value.unixtimestamp_before < current_date) {
-                        note.show();
-                    }
-                    else {
-                        note.hide();
-                    }
-                    
-                    $(context).find('#' + value.timer_element).once(value.timer_element).countdown({
-                        timestamp: ts,
+                    let note_display = $('#' + value.timer_display_element_note);
+
+                    $(context).find('#' + value.timer_display_element).once(value.timer_display_element).countdown({
+                        timestamp: ts_event,
                         font_size: value.fontsize,
-                        callback: function (weeks, days, hours, minutes, seconds) {
-
-                           
-
-                            let done = weeks + days + hours + minutes + seconds;
-	                            let dateStrings = new Array();
+                        callback: function (weeks, days, hours, minutes, seconds) {   
+                            let dateStrings = new Array();
                             dateStrings['@weeks'] = Drupal.formatPlural(weeks, '@count week', '@count weeks');
                             dateStrings['@days'] = Drupal.formatPlural(days, '@count day', '@count days');
                             dateStrings['@hours'] = Drupal.formatPlural(hours, '@count hour', '@count hours');
                             dateStrings['@minutes'] = Drupal.formatPlural(minutes, '@count minute', '@count minutes');
                             dateStrings['@seconds'] = Drupal.formatPlural(seconds, '@count second', '@count seconds');
-			    let message_headline = Drupal.t('Event starts in:');
-			    let message = Drupal.t('@days, @hours, @minutes, @seconds.', dateStrings);
-                    	    note.html('<div>' + message_headline + '</div>&nbsp;<div>' + message + '</div>');
+                            let message_headline = Drupal.t('Event starts in:');
+			                let message = Drupal.t('@days, @hours, @minutes, @seconds.', dateStrings);
+                    	    note_display.html('<div>' + message_headline + '</div>&nbsp;<div>' + message + '</div>');
+                        }
+
+                    });
+
+                    
+                    $(context).find('#' + value.timer_element).once(value.timer_element).countdown({
+                        timestamp: ts,
+                        font_size: value.fontsize,
+                        callback: function (weeks, days, hours, minutes, seconds) {                          
+                            let done = weeks + days + hours + minutes + seconds;
+	                        let dateStrings = new Array();
+                            dateStrings['@weeks'] = Drupal.formatPlural(weeks, '@count week', '@count weeks');
+                            dateStrings['@days'] = Drupal.formatPlural(days, '@count day', '@count days');
+                            dateStrings['@hours'] = Drupal.formatPlural(hours, '@count hour', '@count hours');
+                            dateStrings['@minutes'] = Drupal.formatPlural(minutes, '@count minute', '@count minutes');
+                            dateStrings['@seconds'] = Drupal.formatPlural(seconds, '@count second', '@count seconds');
+			    //let message_headline = Drupal.t('Event starts in:');
+			    //let message = Drupal.t('@days, @hours, @minutes, @seconds.', dateStrings);
+                    	    //note.html('<div>' + message_headline + '</div>&nbsp;<div>' + message + '</div>');
                             if (done == 0) {
-			      note.hide();
-                              $('#' + value.timer_element).hide();
-                              $('form.' + form_class).removeClass('visually-hidden');
+			                    note_display.hide();
+                                $('#' + value.timer_element).hide();
+                                $('form.' + form_class).removeClass('visually-hidden');
                             }
                         }
                     });

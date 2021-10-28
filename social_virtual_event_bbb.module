@@ -142,6 +142,8 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
       $form_class = 'virtual_event_bbb_link_form--' . $nid;
       $timer_element = 'jquery-countdown-timer--' . $nid;
       $timer_element_note = 'jquery-countdown-timer-note--' . $nid;
+      $timer_display_element = 'jquery-countdown-timer-display--' . $nid;
+      $timer_display_element_note = 'jquery-countdown-timer-display-note--' . $nid;
 
       $form['#attributes']['class'][] = $form_class;
    
@@ -164,26 +166,44 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
           $show_button_at = $start_event->getTimestamp() - $join_button_visible_before_seconds;
           $show_button_at_countdown = $start_event->getTimestamp();
 
+          kint($show_button_at);
+          kint($show_button_at_countdown);
+
+          $countdown_settings = [
+            'unixtimestamp' => $show_button_at,
+            'unixtimestamp_event' => $show_button_at_countdown,  
+            'fontsize' => $font_size,
+            'timer_element' => $timer_element,
+            'timer_element_note' => $timer_element_note,
+            'timer_display_element' => $timer_display_element,
+            'timer_display_element_note' => $timer_display_element_note,
+            'form_class' => $form_class,
+          ];
+
           // Attach Javascript and Setting
-          if ($show_button_at) {
+          if ($show_button_at > $current_date) {
 
             $form['submit']['#access'] = TRUE;  
-            $form['submit']['#attributes']['class'][] = 'visually-hidden';
-      
-            $countdown_settings = [
-              'unixtimestamp' => $show_button_at_countdown,
-              'unixtimestamp_before' => $show_button_at,
-              'fontsize' => $font_size,
-              'timer_element' => $timer_element,
-              'timer_element_note' => $timer_element_note,
-              'form_class' => $form_class,
-            ];
-            $form['countdown'] = [
-              '#markup' => '<div id="'. $timer_element_note .'" class="jquery-countdown-timer-note"></div><div id="'. $timer_element .'" class="jquery-countdown-timer"></div>',
-            ];
-            $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
-            $form['#attached']['drupalSettings']['countdown'][$nid] = $countdown_settings;    
+            $form['submit']['#attributes']['class'][] = 'visually-hidden';    
+
+
+                
           }
+
+          $form['countdown_display'] = [
+            '#markup' => '<div id="'. $timer_display_element_note .'" class="jquery-countdown-timer-note"></div><div id="'. $timer_display_element .'" class="jquery-countdown-timer"></div>',
+          ];
+          
+          $form['countdown'] = [
+            '#markup' => '<div id="'. $timer_element .'" class="jquery-countdown-timer"></div>',
+          ];
+
+
+          $form['#attached']['library'][] = 'social_virtual_event_bbb/countdown.timer';
+          $form['#attached']['drupalSettings']['countdown'][$nid] = $countdown_settings;
+
+
+
         }
 
         $join_button_visible_after = $virtual_event_bbb_config_entity->getJoinButtonVisibleAfter();
