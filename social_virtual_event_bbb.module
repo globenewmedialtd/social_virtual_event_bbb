@@ -166,9 +166,6 @@ function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_st
           $show_button_at = $start_event->getTimestamp() - $join_button_visible_before_seconds;
           $show_button_at_countdown = $start_event->getTimestamp();
 
-          kint($show_button_at);
-          kint($show_button_at_countdown);
-
           $countdown_settings = [
             'unixtimestamp' => $show_button_at,
             'unixtimestamp_event' => $show_button_at_countdown,  
