@@ -120,7 +120,6 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
     $BBBKeyPluginManager = \Drupal::service('plugin.manager.bbbkey_plugin');
     $socialVirtualEventsCommon = \Drupal::service('social_virtual_event_bbb.common');
 
-
     
     //$element = [];
     $settings = [];
@@ -237,13 +236,23 @@ class SocialVirtualEventBBBRecordingFormatter extends VirtualEventBBBFormatter {
               try {
                 $response = $bbb->getRecordings($recordingParams);                
                 if (!empty($response->getRawXml()->recordings->recording)) {
+                  $i = 1;  
                   $recordings = [];
                   foreach ($response->getRawXml()->recordings->recording as $key => $recording){
-                    foreach ($recording->playback as $key => $playback){
-                      foreach ($recording->playback->format as $key => $format){
-                        if($format->type == "video_mp4" || $format->type == "presentation"){
+                    foreach ($recording->playback as $key => $playback) {
+                      foreach ($recording->playback->format as $key => $format){                        
+                        if ($format->type == "video_mp4" || $format->type == "presentation") {
                           $format->recordID = $recording->recordID;
-                          $recordings[] = $format;
+                          $recording_id = $recording->recordID->__toString();
+                          $recording_date = _social_virtual_event_bbb_get_recording_date($recording_id);
+                          $delete_form = \Drupal::formBuilder()->getForm('\Drupal\social_virtual_event_bbb\Form\SocialVirtualEventBBBDeleteRecordingForm', $recording_id, $entity_type, $entity_id);
+                          $recordings[] = [
+                                           'recording' => $format,
+                                           'recording_position' => $i,
+                                           'recording_date' => $recording_date,
+                                           'delete_form' => $delete_form
+                                          ];
+                          $i = $i + 1;
                         }
                       }
                     }

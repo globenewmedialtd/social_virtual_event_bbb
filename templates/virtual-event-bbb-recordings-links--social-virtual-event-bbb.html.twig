@@ -18,20 +18,36 @@
     margin: 27px auto;
   }
 </style>
-
+  
 {% if recordings%}
-  <ul>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Recording from</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
     {% for recording in recordings %}
-      <li>
-        <a class="meeting-recording use-ajax"
+      <tr>
+        <td class="recording__position">
+          {{ recording.recording_position }}
+        </td>
+        <td class="recording__label">
+          <a class="meeting-recording use-ajax"
            data-dialog-options="{&quot;width&quot;:&quot;{{display_options.modal.width}}&quot;}"
            data-dialog-type="modal"
-           href="{{ url }}/{{ recording.recordID }}">           
-          {{ recording.recordID }}
-        </a>
-      </li>
+           href="{{ url }}/{{ recording.recording.recordID }}">           
+            Show meeting from {{ recording.recording_date }}
+          </a>
+        </td>
+        <td class="recording__delete">
+          {{ recording.delete_form }}
+        </td>
+      </tr>
     {% endfor %}
-  </ul>
+  </table>
 {% else %}
   <h3>No Recordings available</h3>
 {% endif %}

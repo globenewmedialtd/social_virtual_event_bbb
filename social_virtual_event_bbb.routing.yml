@@ -6,4 +6,11 @@ social_virtual_event_bbb.settings:
   requirements:
     _permission: 'administer social_virtual_event_bbb settings'
   options:
-    _admin_route: TRUE  
+    _admin_route: TRUE 
+
+social_virtual_event_bbb.delete_recording_form:
+  path: '/delete-recording/{recording_id}/{entity_type}/{entity_id}'
+  defaults:
+    _form: '\Drupal\social_virtual_event_bbb\Form\SocialVirtualEventBBBDeleteRecordingForm'
+  requirements:
+    _permission: 'access content'     

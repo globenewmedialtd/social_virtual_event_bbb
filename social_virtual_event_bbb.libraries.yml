@@ -23,3 +23,9 @@ nodejs_bbb_statistic:
     js/nodejs_bbb_event_statistic.js: {}
   dependencies:
     - nodejs_ajax/nodejs_ajax
+
+bbb_recordings:
+  version: VERSION
+  css:
+    component:
+      css/bbb_recordings.css: {}

@@ -18,15 +18,19 @@
     margin: 27px auto;
   }
 </style>
+
 {% if recordings%}
   <div class="recordings-wrapper">
     {% for recording in recordings %}
+    <div class="recording__thumnail">
       <a class="meeting-recording use-ajax"
          data-dialog-options="{&quot;width&quot;:&quot;{{display_options.modal.width}}&quot;}"
          data-dialog-type="modal"
-         href="{{ url }}/{{ recording.recordID }}">
-        <img src="{{recording.preview.images.image.0}}" />
+         href="{{ url }}/{{ recording.recording.recordID }}">
+        <img src="{{recording.recording.preview.images.image.0}}" />
       </a>
+      {{ recording.delete_form }}
+    </div>
     {% endfor %}
   </div>
 {% else %}

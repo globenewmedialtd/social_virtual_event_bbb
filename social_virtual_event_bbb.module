@@ -77,6 +77,34 @@ function social_virtual_event_bbb_theme_suggestions_alter(array &$suggestions, a
 } 
 
 /**
+ * Preprocessing for Virtual event themes
+ */
+function social_virtual_event_bbb_preprocess_virtual_event_bbb_recordings_links__social_virtual_event_bbb(&$variables) {
+  //kint($variables);
+  $variables['#attached']['library'][] =  'social_virtual_event_bbb/bbb_recordings';
+}
+
+function social_virtual_event_bbb_preprocess_virtual_event_bbb_recordings_linked_thumbnails__social_virtual_event_bbb(&$variables) {
+  //kint($variables);
+}
+
+function social_virtual_event_bbb_preprocess_virtual_event_bbb_recordings_video_video__social_virtual_event_bbb(&$variables) {
+  //kint($variables);
+}
+
+function social_virtual_event_bbb_preprocess_virtual_event_bbb_recordings_video_iframe__social_virtual_event_bbb(&$variables) {
+  //kint($variables);
+}
+
+function social_virtual_event_bbb_preprocess_virtual_event_bbb_recordings_video__social_virtual_event_bbb(&$variables) {
+  //kint($variables);
+}
+
+
+
+
+
+/**
  * Implements hook_form_alter()
  */
 function social_virtual_event_bbb_form_alter(&$form, FormStateInterface $form_state, $form_id) {
@@ -615,6 +643,35 @@ function social_virtual_event_bbb_uninstall() {
   \Drupal::configFactory()->get('core.entity_view_mode.node.bbb_recording')->delete();
 }
 
+/**
+ * Implements helper for timestamp conversion.
+ */
+function _social_virtual_event_bbb_get_recording_date(string $recording_id) {
+
+  $recording_date = FALSE;
+  
+  if(isset($recording_id)) {
+
+    // The recording_id holds a timestamp
+    // after the character -
+    // Lets go for that
+
+    $recording_array = explode("-",$recording_id);
+    if (is_array($recording_array)) {
+      $recording_js_timestamp = intval($recording_array[1]);
+    }
+
+    // Now lets make a proper date
+    if (isset($recording_js_timestamp)) {
+      $recording_unix_timestamp = floor($recording_js_timestamp / 1000);
+      $recording_date = \Drupal::service('date.formatter')->format($recording_unix_timestamp, 'custom', 'd.m.Y - H:i');
+    }
+
+  }
+
+  return $recording_date;
+
+}
 
 
 

@@ -6,3 +6,4 @@ package: 'Social'
 dependencies:
   - virtual_event_bbb:virtual_event_bbb
   - social:social_event_an_enroll
+  - restui:restui

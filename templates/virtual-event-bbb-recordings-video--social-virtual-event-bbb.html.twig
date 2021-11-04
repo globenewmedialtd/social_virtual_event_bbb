@@ -3,8 +3,9 @@
     <ul>
         {% for recording in recordings %}
             <li>
-                <iframe src="{{ recording.url }}" frameborder="0" width="100%" height="400px"></iframe>
-                <div><a href="{{ recording.url }}" target="_blank">Open Video in new tab</a></div>
+                <iframe src="{{ recording.recording.url }}" frameborder="0" width="100%" height="400px"></iframe>
+                <div><a href="{{ recording.recording.url }}" target="_blank">Open Video in new tab</a></div>
+                <div class="recording__delete">{{ recording.delete_form }}</div>
             </li>
         {% endfor %}
     </ul>

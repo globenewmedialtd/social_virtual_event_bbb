@@ -277,7 +277,14 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#title' => t('Mute on start'),
       '#default_value' => $settings['mute_on_start'] ? $settings['mute_on_start'] : TRUE,
       '#disabled' => $event !== NULL, 
-    ];    
+    ];
+
+    // We do not want auto recording
+    if (isset($form['record'])) {
+      unset($form['record']);
+    }
+    
+    /*       
     $form['record'] = [
       '#title' => t('Record meeting'),
       '#type' => 'select',
@@ -289,6 +296,11 @@ class SocialVirtualEventBBBSource extends VirtualEventBBBSource {
       '#description' => t('Whether to automatically start recording when first user joins, Moderators in the session can still pause and restart recording using the UI control.'),
       '#disabled' => $event !== NULL,
     ];
+
+    */
+
+
+    
 
     if (isset($entityTypeId) && isset($entityBundle) && $entityTypeId === 'node' && $entityBundle === 'event' ) {
 
